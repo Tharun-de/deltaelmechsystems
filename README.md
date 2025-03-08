@@ -12,8 +12,7 @@ Delta Elmech Systems is a professional engineering services platform that connec
 
 ### Required Services
 
-- [Vercel](https://vercel.com) for frontend hosting
-- [Railway](https://railway.app) for backend hosting
+- [Render](https://render.com) for frontend and backend hosting
 - [Supabase](https://supabase.com) for database
 - [Sentry](https://sentry.io) for error tracking
 - [New Relic](https://newrelic.com) for performance monitoring
@@ -123,44 +122,47 @@ npm run db:seed
 
 ### Deployment Steps
 
-1. Install dependencies:
-```bash
-npm run deploy:setup
-```
+1. Create services on Render.com:
+   - Create a Static Site service for the frontend
+   - Create a Web Service for the backend
 
-2. Build the application:
-```bash
-npm run build:all
-```
+2. Configure environment variables in Render dashboard:
+   ```env
+   # Frontend
+   VITE_API_URL=your_backend_url
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SENTRY_DSN=your_sentry_dsn
 
-3. Deploy Frontend (Vercel):
-```bash
-npm run deploy:frontend
-```
+   # Backend
+   PORT=5002
+   NODE_ENV=production
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   NEW_RELIC_LICENSE_KEY=your_newrelic_license_key
+   CORS_ORIGIN=your_frontend_url
+   ```
 
-4. Deploy Backend (Railway):
-```bash
-npm run deploy:backend
-```
+3. Set up build commands:
+   - Frontend: `npm run build`
+   - Backend: `npm install && npm run build`
 
-Or deploy everything at once:
-```bash
-npm run deploy
-```
+4. Set up start commands:
+   - Frontend: Serve the `dist` directory
+   - Backend: `npm start`
 
 ### Post-Deployment
 
-1. Configure environment variables in Vercel and Railway dashboards
-2. Set up custom domains if needed
-3. Configure SSL certificates
-4. Test the deployed application
-5. Monitor the application using Sentry and New Relic
+1. Configure custom domains in Render dashboard
+2. Set up SSL certificates (automatically handled by Render)
+3. Test the deployed application
+4. Monitor the application using Sentry and New Relic
 
 ### Monitoring & Maintenance
 
 - Monitor application performance in New Relic
 - Track errors in Sentry
-- Check server logs in Railway
+- Check server logs in Render dashboard
 - Monitor database performance in Supabase
 
 ### Troubleshooting
