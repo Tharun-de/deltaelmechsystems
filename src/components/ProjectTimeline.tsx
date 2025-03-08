@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Calendar, CheckCircle2, Clock, AlertCircle, Plus, Edit2, Trash2 } from 'lucide-react';
 
@@ -12,77 +12,115 @@ interface Milestone {
   dependencies?: string[];
 }
 
+interface NewMilestoneForm {
+  title: string;
+  description: string;
+  due_date: string;
+  status: Milestone['status'];
+}
+
 interface ProjectTimelineProps {
   projectId: string;
 }
 
 const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
-  const { user } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
-  const [newMilestone, setNewMilestone] = useState({
+  const [newMilestone, setNewMilestone] = useState<NewMilestoneForm>({
     title: '',
     description: '',
     due_date: '',
-    status: 'pending' as const,
+    status: 'pending',
   });
 
-  useEffect(() => {
-    fetchMilestones();
-  }, [projectId]);
-
-  const fetchMilestones = async () => {
+  const fetchMilestones = useCallback(async () => {
     try {
+      const token = await getAccessTokenSilently();
       const response = await fetch(`/api/projects/${projectId}/milestones`, {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch milestones');
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch milestones');
+      }
+
       const data = await response.json();
       setMilestones(data);
+      setError(null);
     } catch (err) {
-      setError('Failed to load milestones');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load milestones';
+      setError(errorMessage);
       console.error('Error fetching milestones:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId, getAccessTokenSilently]);
+
+  useEffect(() => {
+    fetchMilestones();
+  }, [fetchMilestones]);
 
   const handleMilestoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     try {
+      const token = await getAccessTokenSilently();
       const url = editingMilestone
         ? `/api/projects/${projectId}/milestones/${editingMilestone.id}`
         : `/api/projects/${projectId}/milestones`;
       
       const method = editingMilestone ? 'PUT' : 'POST';
+      const milestoneData = editingMilestone || newMilestone;
+
+      // Validate dates
+      const dueDate = new Date(milestoneData.due_date);
+      if (isNaN(dueDate.getTime())) {
+        setError('Please enter a valid due date');
+        return;
+      }
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editingMilestone ? editingMilestone : newMilestone),
+        body: JSON.stringify(milestoneData),
       });
 
-      if (!response.ok) throw new Error('Failed to save milestone');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to save milestone');
+      }
       
       const milestone = await response.json();
+      
       if (editingMilestone) {
         setMilestones(milestones.map(m => m.id === milestone.id ? milestone : m));
       } else {
         setMilestones([...milestones, milestone]);
       }
+
+      // Reset form
       setShowMilestoneForm(false);
       setEditingMilestone(null);
-      setNewMilestone({ title: '', description: '', due_date: '', status: 'pending' });
+      setNewMilestone({
+        title: '',
+        description: '',
+        due_date: '',
+        status: 'pending'
+      });
     } catch (err) {
-      setError('Failed to save milestone');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save milestone';
+      setError(errorMessage);
       console.error('Error saving milestone:', err);
     }
   };
@@ -91,18 +129,24 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
     if (!window.confirm('Are you sure you want to delete this milestone?')) return;
 
     try {
+      const token = await getAccessTokenSilently();
       const response = await fetch(`/api/projects/${projectId}/milestones/${milestoneId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) throw new Error('Failed to delete milestone');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to delete milestone');
+      }
       
       setMilestones(milestones.filter(m => m.id !== milestoneId));
+      setError(null);
     } catch (err) {
-      setError('Failed to delete milestone');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete milestone';
+      setError(errorMessage);
       console.error('Error deleting milestone:', err);
     }
   };
@@ -133,6 +177,18 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
     }
   };
 
+  const resetForm = () => {
+    setShowMilestoneForm(false);
+    setEditingMilestone(null);
+    setNewMilestone({
+      title: '',
+      description: '',
+      due_date: '',
+      status: 'pending'
+    });
+    setError(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -157,7 +213,7 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
 
       {/* Milestone Form Modal */}
       {showMilestoneForm && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {editingMilestone ? 'Edit Milestone' : 'New Milestone'}
@@ -177,6 +233,8 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
+                  minLength={3}
+                  maxLength={100}
                 />
               </div>
               <div>
@@ -193,6 +251,8 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   rows={3}
                   required
+                  minLength={10}
+                  maxLength={500}
                 />
               </div>
               <div>
@@ -209,6 +269,7 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
+                  min={new Date().toISOString().split('T')[0]}
                 />
               </div>
               <div>
@@ -216,10 +277,11 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
                 <select
                   value={editingMilestone?.status || newMilestone.status}
                   onChange={(e) => {
+                    const status = e.target.value as Milestone['status'];
                     if (editingMilestone) {
-                      setEditingMilestone({ ...editingMilestone, status: e.target.value as Milestone['status'] });
+                      setEditingMilestone({ ...editingMilestone, status });
                     } else {
-                      setNewMilestone({ ...newMilestone, status: e.target.value as Milestone['status'] });
+                      setNewMilestone({ ...newMilestone, status });
                     }
                   }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -233,11 +295,7 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowMilestoneForm(false);
-                    setEditingMilestone(null);
-                    setNewMilestone({ title: '', description: '', due_date: '', status: 'pending' });
-                  }}
+                  onClick={resetForm}
                   className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
@@ -256,55 +314,61 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projectId }) => {
 
       {/* Timeline */}
       <div className="space-y-4">
-        {milestones.map((milestone) => (
-          <div
-            key={milestone.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-3">
-                <div className={`p-2 rounded-full ${getStatusColor(milestone.status)}`}>
-                  {getStatusIcon(milestone.status)}
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900">{milestone.title}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{milestone.description}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Due: {new Date(milestone.due_date).toLocaleDateString()}
-                    </div>
-                    {milestone.completion_date && (
+        {milestones.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No milestones added yet. Click "Add Milestone" to create your first milestone.
+          </div>
+        ) : (
+          milestones.map((milestone) => (
+            <div
+              key={milestone.id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3">
+                  <div className={`p-2 rounded-full ${getStatusColor(milestone.status)}`}>
+                    {getStatusIcon(milestone.status)}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">{milestone.title}</h3>
+                    <p className="text-sm text-gray-500 mt-1">{milestone.description}</p>
+                    <div className="flex items-center space-x-4 mt-2">
                       <div className="flex items-center text-sm text-gray-500">
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Completed: {new Date(milestone.completion_date).toLocaleDateString()}
+                        <Calendar className="h-4 w-4 mr-1" />
+                        Due: {new Date(milestone.due_date).toLocaleDateString()}
                       </div>
-                    )}
+                      {milestone.completion_date && (
+                        <div className="flex items-center text-sm text-gray-500">
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Completed: {new Date(milestone.completion_date).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => {
-                    setEditingMilestone(milestone);
-                    setShowMilestoneForm(true);
-                  }}
-                  className="p-1 text-gray-400 hover:text-gray-600"
-                  title="Edit"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDeleteMilestone(milestone.id)}
-                  className="p-1 text-gray-400 hover:text-red-600"
-                  title="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setEditingMilestone(milestone);
+                      setShowMilestoneForm(true);
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteMilestone(milestone.id)}
+                    className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {error && (

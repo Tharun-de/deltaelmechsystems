@@ -1,5 +1,5 @@
 // backend/models/HomePage.js
-import supabase from '../config/db.js';
+import { supabase } from '../config/db.js';
 
 class HomePage {
   // Example method to fetch homepage content from a Supabase table called 'homepage'

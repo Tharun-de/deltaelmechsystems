@@ -1,7 +1,7 @@
-import supabase from '../config/db.js';
+import { supabase } from '../config/db.js';
 
 // Dashboard Stats
-export const getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res) => {
   try {
     // Get total projects
     const { count: totalProjects } = await supabase
@@ -67,22 +67,54 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
-// Employee Management
-export const getEmployees = async (req, res) => {
+// User Management
+const getUsers = async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('employees')
+      .from('users')
       .select('*');
 
     if (error) throw error;
     res.json(data);
   } catch (error) {
-    console.error('Error fetching employees:', error);
-    res.status(500).json({ error: 'Failed to fetch employees' });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 };
 
-export const createEmployee = async (req, res) => {
+const updateUser = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update(req.body)
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', req.params.id);
+
+    if (error) throw error;
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+};
+
+// Employee Management
+const createEmployee = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('employees')
@@ -97,7 +129,7 @@ export const createEmployee = async (req, res) => {
   }
 };
 
-export const updateEmployee = async (req, res) => {
+const updateEmployee = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('employees')
@@ -113,7 +145,7 @@ export const updateEmployee = async (req, res) => {
   }
 };
 
-export const deleteEmployee = async (req, res) => {
+const deleteEmployee = async (req, res) => {
   try {
     const { error } = await supabase
       .from('employees')
@@ -129,7 +161,7 @@ export const deleteEmployee = async (req, res) => {
 };
 
 // Project Management
-export const getProjects = async (req, res) => {
+const getProjects = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('projects')
@@ -147,7 +179,7 @@ export const getProjects = async (req, res) => {
   }
 };
 
-export const createProject = async (req, res) => {
+const createProject = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('projects')
@@ -162,7 +194,7 @@ export const createProject = async (req, res) => {
   }
 };
 
-export const updateProject = async (req, res) => {
+const updateProject = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('projects')
@@ -178,7 +210,7 @@ export const updateProject = async (req, res) => {
   }
 };
 
-export const deleteProject = async (req, res) => {
+const deleteProject = async (req, res) => {
   try {
     const { error } = await supabase
       .from('projects')
@@ -194,7 +226,7 @@ export const deleteProject = async (req, res) => {
 };
 
 // Payment Management
-export const getPayments = async (req, res) => {
+const getPayments = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('payments')
@@ -212,7 +244,7 @@ export const getPayments = async (req, res) => {
   }
 };
 
-export const createPayment = async (req, res) => {
+const createPayment = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('payments')
@@ -227,7 +259,7 @@ export const createPayment = async (req, res) => {
   }
 };
 
-export const updatePayment = async (req, res) => {
+const updatePayment = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('payments')
@@ -243,7 +275,7 @@ export const updatePayment = async (req, res) => {
   }
 };
 
-export const deletePayment = async (req, res) => {
+const deletePayment = async (req, res) => {
   try {
     const { error } = await supabase
       .from('payments')
@@ -259,14 +291,11 @@ export const deletePayment = async (req, res) => {
 };
 
 // Client Management
-export const getClients = async (req, res) => {
+const getClients = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('clients')
-      .select(`
-        *,
-        projects:projects(count)
-      `);
+      .select('*');
 
     if (error) throw error;
     res.json(data);
@@ -276,7 +305,7 @@ export const getClients = async (req, res) => {
   }
 };
 
-export const createClient = async (req, res) => {
+const createClient = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('clients')
@@ -291,7 +320,7 @@ export const createClient = async (req, res) => {
   }
 };
 
-export const updateClient = async (req, res) => {
+const updateClient = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('clients')
@@ -307,7 +336,7 @@ export const updateClient = async (req, res) => {
   }
 };
 
-export const deleteClient = async (req, res) => {
+const deleteClient = async (req, res) => {
   try {
     const { error } = await supabase
       .from('clients')
@@ -322,8 +351,8 @@ export const deleteClient = async (req, res) => {
   }
 };
 
-// Settings
-export const updateSettings = async (req, res) => {
+// Settings Management
+const updateSettings = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('settings')
@@ -337,4 +366,27 @@ export const updateSettings = async (req, res) => {
     console.error('Error updating settings:', error);
     res.status(500).json({ error: 'Failed to update settings' });
   }
+};
+
+export {
+  getDashboardStats,
+  getUsers,
+  updateUser,
+  deleteUser,
+  getPayments,
+  getProjects,
+  updateProject,
+  deleteProject,
+  createProject,
+  createEmployee,
+  updateEmployee,
+  deleteEmployee,
+  createPayment,
+  updatePayment,
+  deletePayment,
+  getClients,
+  createClient,
+  updateClient,
+  deleteClient,
+  updateSettings
 }; 

@@ -2,13 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Zap, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
-const Header = () => {
+interface User {
+  user_metadata?: {
+    name: string;
+  };
+}
+
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: User | null;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const location = useLocation();
-  const { isAuthenticated, user, logout } = useAuth();
+  
+  // Always call useAuth at the top level
+  const auth = useAuth() as AuthContextType;
+  const { isAuthenticated = false, user = null, logout, isLoading = false } = auth || {};
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,6 +64,32 @@ const Header = () => {
     }
   }, [location]);
 
+  const handleLogout = async () => {
+    if (!logout) return;
+    try {
+      setIsLoggingOut(true);
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-3' : 'bg-white py-5'}`}>
+        <div className="container mx-auto px-6">
+          <div className="flex justify-between items-center">
+            <Link to="/" className="flex items-center">
+              <Zap className="w-8 h-8 text-blue-600" />
+              <span className="ml-2 text-xl font-bold text-gray-800">Delta Elmech Systems</span>
+            </Link>
+            <Spinner className="w-6 h-6" />
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-3' : 'bg-white py-5'}`}>
       <div className="container mx-auto px-6">
@@ -58,30 +103,35 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link 
               to="/" 
+              onClick={handleLinkClick}
               className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname === '/' ? 'text-blue-600' : ''}`}
             >
               Home
             </Link>
             <Link 
               to="/about" 
+              onClick={handleLinkClick}
               className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname === '/about' ? 'text-blue-600' : ''}`}
             >
               About
             </Link>
             <Link 
               to="/services" 
+              onClick={handleLinkClick}
               className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname.includes('/services') ? 'text-blue-600' : ''}`}
             >
               Services
             </Link>
             <Link 
               to="/careers" 
+              onClick={handleLinkClick}
               className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname.includes('/careers') ? 'text-blue-600' : ''}`}
             >
               Careers
             </Link>
             <Link 
               to="/contact" 
+              onClick={handleLinkClick}
               className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname === '/contact' ? 'text-blue-600' : ''}`}
             >
               Contact
@@ -90,16 +140,20 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="relative group">
                 <button className="flex items-center font-medium text-gray-700 hover:text-blue-600 transition duration-300">
-                  {user?.name} <ChevronDown className="ml-1 w-4 h-4" />
+                  {user?.user_metadata?.name} <ChevronDown className="ml-1 w-4 h-4" />
                 </button>
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                  <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</Link>
-                  <button 
-                    onClick={logout} 
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  <Link to="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Dashboard
+                  </Link>
+                  <Button
+                    onClick={handleLogout}
+                    variant="ghost"
+                    className="w-full justify-start px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    disabled={isLoggingOut}
                   >
-                    Logout
-                  </button>
+                    {isLoggingOut ? <Spinner className="mr-2" /> : 'Logout'}
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -169,10 +223,11 @@ const Header = () => {
                         Dashboard
                       </Link>
                       <button 
-                        onClick={logout} 
+                        onClick={handleLogout} 
                         className="font-medium text-gray-700 hover:text-blue-600 transition duration-300 py-2 block w-full text-left"
+                        disabled={isLoggingOut}
                       >
-                        Logout
+                        {isLoggingOut ? <Spinner className="mr-2" /> : 'Logout'}
                       </button>
                     </>
                   ) : (

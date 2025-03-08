@@ -2,7 +2,7 @@ import React from 'react';
 import { CreditCard, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { formatCurrency } from '../../lib/utils';
-import { supabase } from '../../lib/supabase';
+import { supabase } from "@/config/supabase";
 
 interface PaymentStats {
   totalRevenue: number;

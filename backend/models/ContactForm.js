@@ -1,5 +1,5 @@
 // backend/models/ContactForm.js
-import supabase from '../config/db.js';
+import { supabase } from '../config/db.js';
 
 class ContactForm {
   /**

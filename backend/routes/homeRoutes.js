@@ -1,10 +1,11 @@
 import express from 'express';
-import { getHomePage, updateHomePage } from '../controllers/homeController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { getHomeContent, updateHomeContent } from '../controllers/homeController.js';
+import pkg from 'express-openid-connect';
+const { requiresAuth } = pkg;
 
 const router = express.Router();
 
-router.get('/', getHomePage);
-router.put('/', protect, admin, updateHomePage);
+router.get('/', getHomeContent);
+router.put('/', requiresAuth(), updateHomeContent);
 
 export default router;

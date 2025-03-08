@@ -1,13 +1,16 @@
 import express from 'express';
-import { requiresAuth } from 'express-openid-connect';
+import pkg from 'express-openid-connect';
+const { requiresAuth } = pkg;
 import {
   getDashboardStats,
-  getEmployees,
-  getProjects,
+  getUsers,
+  updateUser,
+  deleteUser,
   getPayments,
-  createProject,
+  getProjects,
   updateProject,
   deleteProject,
+  createProject,
   createEmployee,
   updateEmployee,
   deleteEmployee,
@@ -23,29 +26,30 @@ import {
 
 const router = express.Router();
 
-// Apply Auth0 authentication to all admin routes
+// Protect all admin routes
 router.use(requiresAuth());
 
-// Dashboard Stats
+// Dashboard stats
 router.get('/stats', getDashboardStats);
 
-// Employee Management
-router.get('/employees', getEmployees);
-router.post('/employees', createEmployee);
-router.put('/employees/:id', updateEmployee);
-router.delete('/employees/:id', deleteEmployee);
+// User management
+router.get('/users', getUsers);
+router.put('/users/:id', updateUser);
+router.delete('/users/:id', deleteUser);
 
-// Project Management
+// Payment management
+router.get('/payments', getPayments);
+
+// Project management
 router.get('/projects', getProjects);
 router.post('/projects', createProject);
 router.put('/projects/:id', updateProject);
 router.delete('/projects/:id', deleteProject);
 
-// Payment Management
-router.get('/payments', getPayments);
-router.post('/payments', createPayment);
-router.put('/payments/:id', updatePayment);
-router.delete('/payments/:id', deletePayment);
+// Employee Management
+router.post('/employees', createEmployee);
+router.put('/employees/:id', updateEmployee);
+router.delete('/employees/:id', deleteEmployee);
 
 // Client Management
 router.get('/clients', getClients);

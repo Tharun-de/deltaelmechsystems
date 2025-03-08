@@ -18,15 +18,19 @@ const DashboardHeader = () => {
     }
   };
 
+  const userName = user?.user_metadata?.name || 'User';
+  const userRole = user?.user_metadata?.role || 'user';
+  const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            Welcome back, {user?.name}
+            Welcome back, {userName}
           </h1>
           <p className="text-gray-600">
-            {user?.role.charAt(0).toUpperCase() + user?.role.slice(1)} Dashboard
+            {userRole.charAt(0).toUpperCase() + userRole.slice(1)} Dashboard
           </p>
         </div>
 
@@ -41,7 +45,7 @@ const DashboardHeader = () => {
           <div className="flex items-center space-x-2">
             <Avatar>
               <AvatarFallback>
-                {user?.name.split(' ').map(n => n[0]).join('')}
+                {initials}
               </AvatarFallback>
             </Avatar>
             <Button variant="ghost" onClick={handleLogout}>

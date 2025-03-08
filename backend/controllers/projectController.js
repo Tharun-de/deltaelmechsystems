@@ -1,4 +1,4 @@
-import supabase from '../config/db.js';
+import { supabase } from '../config/db.js';
 
 export const getProjects = async (req, res) => {
   try {

@@ -44,17 +44,14 @@ export interface Payment {
 }
 
 // Job Application Types
+export type JobApplicationStatus = 'pending' | 'reviewed' | 'shortlisted' | 'accepted' | 'rejected';
+
 export interface JobApplication {
   id: string;
-  job_id: string;
-  job_title: string;
-  full_name: string;
+  name: string;
   email: string;
-  experience: string;
-  linkedin?: string;
-  resume_url: string;
-  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected';
-  admin_notes?: string;
+  position: string;
+  status: JobApplicationStatus;
   created_at: string;
   updated_at: string;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Users, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { supabase } from '../../lib/supabase';
+import { supabase } from "@/config/supabase";
 
 interface ApplicationStats {
   totalApplications: number;

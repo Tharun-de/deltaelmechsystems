@@ -4,7 +4,7 @@ import { Upload, Briefcase, Linkedin } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from './ui/use-toast';
-import { supabase } from '../lib/supabase';
+import { supabase } from "@/config/supabase";
 
 interface JobApplicationFormProps {
   jobId: string;

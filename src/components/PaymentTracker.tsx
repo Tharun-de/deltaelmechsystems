@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { DollarSign, Download, Plus, Calendar, CreditCard, Receipt, AlertCircle } from 'lucide-react';
+import { DollarSign, Download, Plus, AlertCircle, CreditCard } from 'lucide-react';
 
 interface Payment {
   id: string;
@@ -9,7 +9,7 @@ interface Payment {
   date: string;
   description: string;
   invoice_url?: string;
-  payment_method: string;
+  payment_method: 'credit_card' | 'bank_transfer' | 'check';
   transaction_id?: string;
 }
 
@@ -18,73 +18,102 @@ interface PaymentTrackerProps {
   totalBudget: number;
 }
 
+interface NewPaymentForm {
+  amount: string;
+  description: string;
+  payment_method: Payment['payment_method'];
+}
+
 const PaymentTracker: React.FC<PaymentTrackerProps> = ({ projectId, totalBudget }) => {
-  const { user } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [newPayment, setNewPayment] = useState({
+  const [newPayment, setNewPayment] = useState<NewPaymentForm>({
     amount: '',
     description: '',
     payment_method: 'credit_card',
   });
 
-  useEffect(() => {
-    fetchPayments();
-  }, [projectId]);
-
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
+      const token = await getAccessTokenSilently();
       const response = await fetch(`/api/projects/${projectId}/payments`, {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch payments');
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch payments');
+      }
+
       const data = await response.json();
       setPayments(data);
+      setError(null);
     } catch (err) {
-      setError('Failed to load payment history');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load payment history';
+      setError(errorMessage);
       console.error('Error fetching payments:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId, getAccessTokenSilently]);
+
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!newPayment.amount || parseFloat(newPayment.amount) <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
     try {
+      const token = await getAccessTokenSilently();
       const response = await fetch(`/api/projects/${projectId}/payments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newPayment),
+        body: JSON.stringify({
+          ...newPayment,
+          amount: parseFloat(newPayment.amount),
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to process payment');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to process payment');
+      }
       
       const payment = await response.json();
       setPayments([...payments, payment]);
       setShowPaymentForm(false);
       setNewPayment({ amount: '', description: '', payment_method: 'credit_card' });
     } catch (err) {
-      setError('Failed to process payment');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process payment';
+      setError(errorMessage);
       console.error('Error processing payment:', err);
     }
   };
 
-  const calculateTotalPaid = () => {
+  const calculateTotalPaid = useCallback(() => {
     return payments
       .filter(payment => payment.status === 'completed')
       .reduce((sum, payment) => sum + payment.amount, 0);
-  };
+  }, [payments]);
 
-  const calculateRemainingBalance = () => {
+  const calculateRemainingBalance = useCallback(() => {
     return totalBudget - calculateTotalPaid();
-  };
+  }, [totalBudget, calculateTotalPaid]);
 
   const getStatusColor = (status: Payment['status']) => {
     switch (status) {
@@ -180,7 +209,7 @@ const PaymentTracker: React.FC<PaymentTrackerProps> = ({ projectId, totalBudget 
                 <label className="block text-sm font-medium text-gray-700">Payment Method</label>
                 <select
                   value={newPayment.payment_method}
-                  onChange={(e) => setNewPayment({ ...newPayment, payment_method: e.target.value })}
+                  onChange={(e) => setNewPayment({ ...newPayment, payment_method: e.target.value as Payment['payment_method'] })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="credit_card">Credit Card</option>

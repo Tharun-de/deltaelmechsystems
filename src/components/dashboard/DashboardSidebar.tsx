@@ -11,82 +11,94 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useAuth } from '../../context/AuthContext';
 
 const menuItems = [
   {
     title: 'Overview',
     icon: LayoutDashboard,
-    href: '/dashboard/admin',
-    pattern: /^\/dashboard\/admin$/
+    href: '/admin',
+    pattern: /^\/admin$/
   },
   {
     title: 'Users',
     icon: Users,
-    href: '/dashboard/admin/users',
-    pattern: /^\/dashboard\/admin\/users/
+    href: '/admin/users',
+    pattern: /^\/admin\/users/
   },
   {
     title: 'Projects',
     icon: Briefcase,
-    href: '/dashboard/admin/projects',
-    pattern: /^\/dashboard\/admin\/projects/
+    href: '/admin/projects',
+    pattern: /^\/admin\/projects/
   },
   {
     title: 'Applications',
     icon: FileText,
-    href: '/dashboard/admin/applications',
-    pattern: /^\/dashboard\/admin\/applications/
+    href: '/admin/applications',
+    pattern: /^\/admin\/applications/
   },
   {
     title: 'Contact Forms',
     icon: Mail,
-    href: '/dashboard/admin/contacts',
-    pattern: /^\/dashboard\/admin\/contacts/
+    href: '/admin/contacts',
+    pattern: /^\/admin\/contacts/
   },
   {
     title: 'Payments',
     icon: CreditCard,
-    href: '/dashboard/admin/payments',
-    pattern: /^\/dashboard\/admin\/payments/
+    href: '/admin/payments',
+    pattern: /^\/admin\/payments/
   },
   {
     title: 'Settings',
     icon: Settings,
-    href: '/dashboard/admin/settings',
-    pattern: /^\/dashboard\/admin\/settings/
+    href: '/admin/settings',
+    pattern: /^\/admin\/settings/
   }
 ];
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const userRole = user?.user_metadata?.role || 'user';
+
+  // Only show menu items relevant to the user's role
+  const filteredMenuItems = menuItems.filter(item => {
+    if (userRole === 'admin') return true;
+    if (userRole === 'manager' && !item.href.includes('/admin/users')) return true;
+    return false;
+  });
 
   return (
-    <aside className="bg-white border-r border-gray-200 w-64 min-h-screen">
-      <div className="p-6">
-        <nav className="space-y-1">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                'flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors',
-                {
-                  'bg-blue-50 text-blue-700': item.pattern.test(location.pathname),
-                  'text-gray-600 hover:bg-gray-50 hover:text-gray-900': !item.pattern.test(location.pathname)
-                }
-              )}
-            >
-              <item.icon className="h-5 w-5 mr-3" />
-              <span>{item.title}</span>
-              <ChevronRight className={cn(
-                'ml-auto h-4 w-4 transition-transform',
-                item.pattern.test(location.pathname) ? 'transform rotate-90' : ''
-              )} />
-            </Link>
-          ))}
-        </nav>
+    <nav className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
+      <div className="p-4">
+        <ul className="space-y-2">
+          {filteredMenuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.pattern.test(location.pathname);
+
+            return (
+              <li key={item.href}>
+                <Link
+                  to={item.href}
+                  className={cn(
+                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    isActive 
+                      ? "bg-blue-50 text-blue-600" 
+                      : "text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{item.title}</span>
+                  {isActive && <ChevronRight className="h-4 w-4 ml-auto" />}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-    </aside>
+    </nav>
   );
 };
 

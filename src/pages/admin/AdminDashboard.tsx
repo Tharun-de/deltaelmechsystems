@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '@/lib/utils';
 import {
   Users,
   Building2,
   DollarSign,
   FileText,
   UserPlus,
-  Settings,
-  AlertCircle,
-  TrendingUp,
-  Calendar,
   CreditCard,
-  UserCheck,
   FileSpreadsheet,
+  AlertCircle,
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -57,7 +55,8 @@ interface Payment {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { user } = useAuth0();
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -66,30 +65,40 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const fetchDashboardData = useCallback(async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
 
-  const fetchDashboardData = async () => {
     try {
+      const token = await getAccessTokenSilently();
+      
+      if (!token) {
+        setError('Authentication token not found');
+        return;
+      }
+
       const [statsRes, employeesRes, projectsRes, paymentsRes] = await Promise.all([
         fetch('/api/admin/stats', {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch('/api/admin/employees', {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch('/api/admin/projects', {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }),
         fetch('/api/admin/payments', {
-          headers: { Authorization: `Bearer ${user?.token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
 
-      if (!statsRes.ok || !employeesRes.ok || !projectsRes.ok || !paymentsRes.ok) {
-        throw new Error('Failed to fetch dashboard data');
-      }
+      // Check each response individually
+      if (!statsRes.ok) throw new Error(`Stats API error: ${statsRes.statusText}`);
+      if (!employeesRes.ok) throw new Error(`Employees API error: ${employeesRes.statusText}`);
+      if (!projectsRes.ok) throw new Error(`Projects API error: ${projectsRes.statusText}`);
+      if (!paymentsRes.ok) throw new Error(`Payments API error: ${paymentsRes.statusText}`);
 
       const [statsData, employeesData, projectsData, paymentsData] = await Promise.all([
         statsRes.json(),
@@ -102,18 +111,53 @@ const AdminDashboard: React.FC = () => {
       setEmployees(employeesData);
       setProjects(projectsData);
       setPayments(paymentsData);
+      setError(null); // Clear any previous errors
     } catch (err) {
-      setError('Failed to load dashboard data');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load dashboard data';
+      setError(errorMessage);
       console.error('Error fetching dashboard data:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated, getAccessTokenSilently, navigate]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600">Access Denied</h2>
+          <p className="mt-2">Please log in to access the admin dashboard.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center text-red-600">
+          <AlertCircle className="mx-auto h-8 w-8 mb-2" />
+          <h2 className="text-xl font-semibold">Error</h2>
+          <p className="mt-2">{error}</p>
+          <button 
+            onClick={() => fetchDashboardData()} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -183,7 +227,7 @@ const AdminDashboard: React.FC = () => {
                   {stats.total_employees}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {stats.total_payroll.toLocaleString()} monthly payroll
+                  {formatCurrency(stats.total_payroll)} monthly payroll
                 </p>
               </div>
 
@@ -193,7 +237,7 @@ const AdminDashboard: React.FC = () => {
                   <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
                 </div>
                 <p className="mt-2 text-2xl font-semibold text-gray-900">
-                  ${stats.total_revenue.toLocaleString()}
+                  {formatCurrency(stats.total_revenue)}
                 </p>
                 <p className="text-sm text-gray-500">
                   {stats.pending_payments} pending payments
@@ -690,19 +734,6 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
       </div>
-
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 mt-8">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">{error}</h3>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

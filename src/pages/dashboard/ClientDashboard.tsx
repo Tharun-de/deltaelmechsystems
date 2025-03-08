@@ -1,36 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, Bell, CreditCard, ChevronRight, Plus } from 'lucide-react';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface Project {
-  _id: string;
+  id: string;
   title: string;
   status: string;
   progress: number;
-  startDate: string;
-  endDate: string;
+  start_date: string;
+  end_date: string;
 }
 
 interface Payment {
-  _id: string;
+  id: string;
   amount: number;
   status: string;
-  dueDate: string;
+  due_date: string;
   description: string;
 }
 
 interface Notification {
-  _id: string;
+  id: string;
   message: string;
   type: string;
-  date: string;
+  created_at: string;
   read: boolean;
 }
 
 const ClientDashboard = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -41,35 +41,36 @@ const ClientDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const [projectsRes, paymentsRes, notificationsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/client/projects', {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get('http://localhost:5000/api/client/payments', {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get('http://localhost:5000/api/client/notifications', {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        ]);
-
-        setProjects(projectsRes.data);
-        setPayments(paymentsRes.data);
-        setNotifications(notificationsRes.data);
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response?.data?.message || 'Failed to fetch data');
-        } else {
-          setError('An unexpected error occurred');
+        if (!isAuthenticated) {
+          navigate('/login');
+          return;
         }
+
+        const token = await getAccessTokenSilently();
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // Fetch projects
+        const projectsRes = await axios.get('http://localhost:5002/api/client/projects', { headers });
+        setProjects(projectsRes.data);
+
+        // Fetch payments
+        const paymentsRes = await axios.get('http://localhost:5002/api/client/payments', { headers });
+        setPayments(paymentsRes.data);
+
+        // Fetch notifications
+        const notificationsRes = await axios.get('http://localhost:5002/api/client/notifications', { headers });
+        setNotifications(notificationsRes.data);
+
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [isAuthenticated, navigate, getAccessTokenSilently]);
 
   const StatusBadge = ({ status }: { status: string }) => {
     const colors = {
@@ -113,7 +114,7 @@ const ClientDashboard = () => {
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.user_metadata.name}</h1>
                 <p className="text-gray-600">Track your projects and manage payments</p>
               </div>
               <button
@@ -146,7 +147,7 @@ const ClientDashboard = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {projects.map((project) => (
-                    <tr key={project._id}>
+                    <tr key={project.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -170,7 +171,7 @@ const ClientDashboard = () => {
                         <span className="text-sm text-gray-500">{project.progress}%</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(project.startDate).toLocaleDateString()} - {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'Ongoing'}
+                        {new Date(project.start_date).toLocaleDateString()} - {project.end_date ? new Date(project.end_date).toLocaleDateString() : 'Ongoing'}
                       </td>
                     </tr>
                   ))}
@@ -190,13 +191,13 @@ const ClientDashboard = () => {
               </div>
               <div className="space-y-4">
                 {payments.map((payment) => (
-                  <div key={payment._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={payment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
                       <div className="flex items-center">
                         <CreditCard className="h-5 w-5 text-gray-400 mr-2" />
                         <span className="text-sm font-medium text-gray-900">{payment.description}</span>
                       </div>
-                      <span className="text-sm text-gray-500">Due: {new Date(payment.dueDate).toLocaleDateString()}</span>
+                      <span className="text-sm text-gray-500">Due: {new Date(payment.due_date).toLocaleDateString()}</span>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-medium text-gray-900">₹{payment.amount.toLocaleString()}</div>
@@ -217,12 +218,12 @@ const ClientDashboard = () => {
               </div>
               <div className="space-y-4">
                 {notifications.map((notification) => (
-                  <div key={notification._id} className={`p-4 rounded-lg ${notification.read ? 'bg-gray-50' : 'bg-blue-50'}`}>
+                  <div key={notification.id} className={`p-4 rounded-lg ${notification.read ? 'bg-gray-50' : 'bg-blue-50'}`}>
                     <div className="flex items-center">
                       <Bell className={`h-5 w-5 ${notification.read ? 'text-gray-400' : 'text-blue-500'} mr-2`} />
                       <div>
                         <p className="text-sm text-gray-900">{notification.message}</p>
-                        <span className="text-xs text-gray-500">{new Date(notification.date).toLocaleDateString()}</span>
+                        <span className="text-xs text-gray-500">{new Date(notification.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>

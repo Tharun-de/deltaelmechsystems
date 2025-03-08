@@ -12,7 +12,7 @@ import {
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { useToast } from '../ui/use-toast';
-import { supabase } from '../../lib/supabase';
+import { supabase } from "@/config/supabase";
 
 interface JobApplication {
   id: string;

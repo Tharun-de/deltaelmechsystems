@@ -1,5 +1,5 @@
 // userService.js
-import supabase from '../config/db.js';
+import { supabase } from '../config/db.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 /**

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../config/supabase';
 import type { DashboardStats, DashboardUser, Project, Payment, JobApplication, ContactSubmission } from '../lib/types';
 
 export function useAdminDashboard() {
@@ -163,6 +163,21 @@ export function useAdminDashboard() {
     }
   });
 
+  // Delete payment
+  const deletePayment = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase
+        .from('payments')
+        .delete()
+        .eq('id', paymentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+    }
+  });
+
   // Fetch job applications
   const { data: applications, isLoading: applicationsLoading } = useQuery<JobApplication[]>({
     queryKey: ['applications'],
@@ -255,6 +270,7 @@ export function useAdminDashboard() {
     updateProject,
     deleteProject,
     updatePayment,
+    deletePayment,
     updateApplication,
     deleteApplication,
     updateContact
