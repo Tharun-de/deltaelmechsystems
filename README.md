@@ -1,121 +1,106 @@
 # Delta Elmech Systems
 
-A modern web application for project management and client interactions.
+Delta Elmech Systems is a professional engineering services platform that connects clients with expert engineering solutions.
 
-## Deployment Guide
+## 🚀 Quick Start
 
 ### Prerequisites
 
-1. Install required tools:
-   - Node.js (v18 or later)
-   - npm (v9 or later)
-   - Git
+- Node.js 18.x or higher
+- npm 9.x or higher
+- Git
 
-2. Sign up for services:
-   - [Vercel](https://vercel.com) for frontend hosting
-   - [Railway](https://railway.app) for backend hosting
-   - [Supabase](https://supabase.com) for database
-   - [Sentry](https://sentry.io) for error tracking
-   - [New Relic](https://newrelic.com) for performance monitoring
+### Installation
 
-### Environment Setup
-
-1. Create `.env` file in the project root:
-```env
-# Frontend
-VITE_API_URL=your_backend_url
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_SENTRY_DSN=your_sentry_dsn
-
-# Backend
-PORT=5002
-NODE_ENV=production
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-NEW_RELIC_LICENSE_KEY=your_newrelic_license_key
-CORS_ORIGIN=your_frontend_url
-```
-
-### Database Setup
-
-1. Run database migrations:
+1. Clone the repository
 ```bash
-npm run db:migrate
+git clone https://github.com/Tharun-de/deltaelmechsystems.git
+cd deltaelmechsystems
 ```
 
-2. Seed initial data (if needed):
+2. Install frontend dependencies
 ```bash
-npm run db:seed
+cd frontend
+npm install
 ```
 
-### Deployment Steps
-
-1. Install dependencies:
+3. Install backend dependencies
 ```bash
-npm run deploy:setup
+cd ../backend
+npm install
 ```
 
-2. Build the application:
+4. Set up environment variables
 ```bash
-npm run build:all
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-3. Deploy Frontend (Vercel):
+5. Start development servers
 ```bash
-npm run deploy:frontend
+# Terminal 1 - Frontend
+cd frontend
+npm run dev
+
+# Terminal 2 - Backend
+cd backend
+npm run dev
 ```
 
-4. Deploy Backend (Railway):
+## 🏗️ Project Structure
+
+```
+deltaelmechsystems/
+├── frontend/           # React + Vite frontend
+├── backend/           # Node.js + Express backend
+├── .github/           # GitHub configurations
+└── docs/             # Documentation
+```
+
+## 🌿 Branch Strategy
+
+- `main` - Production branch
+- `staging` - Pre-production testing
+- `develop` - Development branch
+- `feature/*` - New features
+- `bugfix/*` - Bug fixes
+- `release/*` - Release preparation
+- `hotfix/*` - Production hotfixes
+
+## 🔄 Development Workflow
+
+1. Create a new branch from `develop`
 ```bash
-npm run deploy:backend
+git checkout develop
+git pull
+git checkout -b feature/your-feature-name
 ```
 
-Or deploy everything at once:
+2. Make your changes and commit
 ```bash
-npm run deploy
+git add .
+git commit -m "feat: your feature description"
 ```
 
-### Post-Deployment
+3. Push and create PR
+```bash
+git push origin feature/your-feature-name
+# Create PR on GitHub targeting develop branch
+```
 
-1. Configure environment variables in Vercel and Railway dashboards
-2. Set up custom domains if needed
-3. Configure SSL certificates
-4. Test the deployed application
-5. Monitor the application using Sentry and New Relic
+## 🚀 Deployment
 
-### Monitoring & Maintenance
+- Staging: Automatically deployed from `staging` branch
+- Production: Automatically deployed from `main` branch
 
-- Monitor application performance in New Relic
-- Track errors in Sentry
-- Check server logs in Railway
-- Monitor database performance in Supabase
+## 📝 Contributing
 
-### Troubleshooting
+Please read [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-Common issues and solutions:
+## 📄 License
 
-1. **Blank Page After Deployment**
-   - Check if environment variables are properly set
-   - Verify API endpoints are accessible
-   - Check browser console for errors
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-2. **Database Connection Issues**
-   - Verify Supabase connection strings
-   - Check if IP is whitelisted
-   - Verify RLS policies
+## 🤝 Support
 
-3. **API Errors**
-   - Check CORS configuration
-   - Verify API routes
-   - Check server logs
-
-### Support
-
-For issues or questions, please contact:
-- Technical Support: support@deltaelmech.com
-- Emergency Contact: emergency@deltaelmech.com
-
-## License
-
-MIT License - see LICENSE file for details 
+For support, email support@deltaelmechsystems.com or join our Slack channel. 

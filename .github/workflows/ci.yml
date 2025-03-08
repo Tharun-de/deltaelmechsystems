@@ -1,0 +1,70 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ develop, staging, main ]
+  pull_request:
+    branches: [ develop, staging, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+        
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm ci
+        cd ../backend
+        npm ci
+        
+    - name: Run Frontend Tests
+      run: |
+        cd frontend
+        npm run test
+        
+    - name: Run Backend Tests
+      run: |
+        cd backend
+        npm run test
+        
+    - name: Run ESLint
+      run: |
+        cd frontend
+        npm run lint
+        cd ../backend
+        npm run lint
+
+  deploy-staging:
+    needs: test
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to Render Staging
+      env:
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+      run: |
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_STAGING }}/deploys \
+          -H "Authorization: Bearer $RENDER_TOKEN"
+
+  deploy-production:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to Render Production
+      env:
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+      run: |
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_PROD }}/deploys \
+          -H "Authorization: Bearer $RENDER_TOKEN" 
