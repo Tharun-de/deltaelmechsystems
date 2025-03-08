@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { CardElement, Elements, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { createPaymentIntent, confirmPayment } from '../lib/stripe';
+import { createPaymentIntent } from '../lib/stripe';
 import { createOrder, verifyPayment } from '../lib/razorpay';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from './ui/use-toast';
-import { PaymentIntent } from '@stripe/stripe-js';
+
+declare global {
+  interface Window {
+    Razorpay: new (options: any) => {
+      open: () => void;
+    };
+  }
+}
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
 
 interface PaymentFormProps {
   amount: number;
@@ -30,7 +43,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, projectId, onSuccess,
 
     try {
       setLoading(true);
-      const clientSecret = await createPaymentIntent({ amount, projectId });
+      const { clientSecret } = await createPaymentIntent({ amount, projectId });
       
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) throw new Error('Card element not found');
@@ -75,7 +88,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, projectId, onSuccess,
         name: 'Delta Elmech Systems',
         description: 'Project Payment',
         order_id: orderId,
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           const verified = await verifyPayment({
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -116,23 +129,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, projectId, onSuccess,
       onError(error instanceof Error ? error : new Error('Payment failed'));
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePayment = async (paymentIntent: PaymentIntent) => {
-    try {
-      const response = await fetch('/api/confirm-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          paymentIntentId: paymentIntent.id,
-        }),
-      });
-      // ... rest of the code
-    } catch (error) {
-      console.error('Error:', error);
     }
   };
 
