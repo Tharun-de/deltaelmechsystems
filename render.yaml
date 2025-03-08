@@ -6,6 +6,7 @@ services:
     rootDir: .
     buildCommand: cd backend && npm install
     startCommand: cd backend && npm start
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
@@ -19,6 +20,7 @@ services:
     rootDir: .
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    plan: free
     envVars:
       - key: VITE_API_URL
         value: https://deltaelmechsystems-backend.onrender.com

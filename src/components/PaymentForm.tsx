@@ -6,6 +6,7 @@ import { createOrder, verifyPayment } from '../lib/razorpay';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useToast } from './ui/use-toast';
+import { PaymentIntent } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -115,6 +116,23 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ amount, projectId, onSuccess,
       onError(error instanceof Error ? error : new Error('Payment failed'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePayment = async (paymentIntent: PaymentIntent) => {
+    try {
+      const response = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentIntentId: paymentIntent.id,
+        }),
+      });
+      // ... rest of the code
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 

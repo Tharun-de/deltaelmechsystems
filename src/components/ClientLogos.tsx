@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
+import { type AutoplayOptions } from 'swiper/types';
 
 const ClientLogos = () => {
   const clients = [
@@ -48,6 +49,12 @@ const ClientLogos = () => {
     }
   ];
 
+  const autoplayOptions: AutoplayOptions = {
+    delay: 2500,
+    disableOnInteraction: false,
+    pauseOnMouseEnter: true
+  };
+
   return (
     <div className="py-16 bg-gradient-to-b from-gray-900/5 to-transparent backdrop-blur-sm">
       <div className="container mx-auto px-6">
@@ -69,11 +76,7 @@ const ClientLogos = () => {
           spaceBetween={30}
           slidesPerView={2}
           loop={true}
-          autoplay={{
-            delay: 0,
-            disableOnInteraction: false,
-            speed: 5000
-          }}
+          autoplay={autoplayOptions}
           speed={5000}
           breakpoints={{
             640: {
