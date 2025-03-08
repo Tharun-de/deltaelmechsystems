@@ -126,8 +126,10 @@ app.use((req, res, next) => {
     Logger.http(
       `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`
     );
-    // Track response time in New Relic
-    newrelic.recordMetric('Custom/ResponseTime', duration);
+    // Track response time in New Relic if initialized
+    if (newrelic) {
+      newrelic.recordMetric('Custom/ResponseTime', duration);
+    }
   });
   next();
 });
@@ -198,8 +200,10 @@ app.get('/health', async (req, res) => {
 // Error Handling
 // ------------------------
 app.use((err, req, res, next) => {
-  // Track error in New Relic
-  newrelic.noticeError(err);
+  // Track error in New Relic only if initialized
+  if (newrelic) {
+    newrelic.noticeError(err);
+  }
   Logger.error('Unhandled error:', err);
   errorHandler(err, req, res, next);
 });
@@ -226,7 +230,9 @@ const server = app.listen(PORT, () => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  newrelic.noticeError(err);
+  if (newrelic) {
+    newrelic.noticeError(err);
+  }
   Logger.error('Unhandled Promise Rejection:', err);
   // Give the server a grace period to finish pending requests
   server.close(() => process.exit(1));
@@ -234,7 +240,9 @@ process.on('unhandledRejection', (err) => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  newrelic.noticeError(err);
+  if (newrelic) {
+    newrelic.noticeError(err);
+  }
   Logger.error('Uncaught Exception:', err);
   // Give the server a grace period to finish pending requests
   server.close(() => process.exit(1));
