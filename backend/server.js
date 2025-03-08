@@ -162,18 +162,14 @@ app.use('/api/email', emailRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+// Public home route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Delta Elmech Systems API is running',
+    docs: '/api-docs',
+    health: '/health'
   });
-} else {
-  // Public home route for development
-  app.get('/', (req, res) => {
-    res.send('API is running...');
-  });
-}
+});
 
 // Health check route with enhanced monitoring
 app.get('/health', async (req, res) => {
