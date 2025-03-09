@@ -29,6 +29,10 @@ import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CreateProjectPage from './pages/CreateProjectPage';
 import ProjectDetailsPage from './pages/dashboard/ProjectDetailsPage';
+import ServiceJobsPage from './pages/ServiceJobsPage';
+import OurWorksPage from './pages/OurWorksPage';
+import BlogsPage from './pages/BlogsPage';
+import BlogPostPage from './pages/BlogPostPage';
 
 // Leadership Pages
 import CEOPage from './pages/leadership/CEOPage';
@@ -58,8 +62,10 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
           <Route path="/careers" element={<CareersPage />} />
-          <Route path="/careers/:id" element={<JobDetailPage />} />
+          <Route path="/careers/service/:serviceId" element={<ServiceJobsPage />} />
+          <Route path="/careers/:jobId" element={<JobDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/our-works" element={<OurWorksPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           
@@ -169,6 +175,12 @@ function App() {
           
           {/* Redirect based on role */}
           <Route path="/dashboard" element={<Navigate to={getDashboardRoute()} replace />} />
+          
+          {/* Blogs Page */}
+          <Route path="/blogs" element={<BlogsPage />} />
+          
+          {/* Blog Post Page */}
+          <Route path="/blog/:postId" element={<BlogPostPage />} />
           
           {/* 404 Page */}
           <Route path="*" element={<NotFoundPage />} />

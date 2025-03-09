@@ -136,6 +136,13 @@ const Header: React.FC = () => {
             >
               Contact
             </Link>
+            <Link 
+              to="/blogs" 
+              onClick={handleLinkClick}
+              className={`font-medium text-gray-700 hover:text-blue-600 transition duration-300 ${location.pathname.includes('/blogs') || location.pathname.includes('/blog/') ? 'text-blue-600' : ''}`}
+            >
+              Blogs
+            </Link>
             
             {isAuthenticated ? (
               <div className="relative group">
@@ -214,6 +221,9 @@ const Header: React.FC = () => {
                 </Link>
                 <Link to="/contact" className="font-medium text-gray-700 hover:text-blue-600 transition duration-300 py-2">
                   Contact
+                </Link>
+                <Link to="/blogs" className="font-medium text-gray-700 hover:text-blue-600 transition duration-300 py-2">
+                  Blogs
                 </Link>
                 
                 <div className="pt-2 border-t border-gray-200">
