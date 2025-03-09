@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Award, Clock, Zap, CheckCircle } from 'lucide-react';
+import { Users, Award, Clock, Zap, CheckCircle, ChevronRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AnimatedSection from '../components/AnimatedSection';
 import PageTransition from '../components/PageTransition';
+import CountUpCircle from '../components/CountUpCircle';
 
 const AboutPage = () => {
   const values = [
@@ -111,6 +112,31 @@ const AboutPage = () => {
           </div>
         </section>
 
+        {/* Projects Counter */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6">
+            <AnimatedSection>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <CountUpCircle
+                  endValue={10000}
+                  duration={2000}
+                  label="Projects Successfully Completed"
+                />
+                <CountUpCircle
+                  endValue={5000}
+                  duration={2000}
+                  label="Happy Clients Served"
+                />
+                <CountUpCircle
+                  endValue={15}
+                  duration={2000}
+                  label="Years of Excellence"
+                />
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+
         {/* Our Values */}
         <section className="py-20 bg-white">
           <div className="container mx-auto px-6">
@@ -162,6 +188,76 @@ const AboutPage = () => {
           </div>
         </section>
 
+        {/* Why Choose Us Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <AnimatedSection className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Delta Elmech Systems</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                What sets us apart from other engineering firms.
+              </p>
+            </AnimatedSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <AnimatedSection delay={0.1} className="bg-white p-8 rounded-xl shadow-lg">
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Comprehensive Expertise</h3>
+                    <p className="text-gray-600">
+                      Our team brings together expertise in automation, electrical, and mechanical engineering, allowing us to deliver integrated solutions that address all aspects of your industrial systems.
+                    </p>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection delay={0.2} className="bg-white p-8 rounded-xl shadow-lg">
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Industry Experience</h3>
+                    <p className="text-gray-600">
+                      With over 15 years in the industry, we've worked across diverse sectors and applications, giving us the insights and knowledge to tackle even the most complex challenges.
+                    </p>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection delay={0.3} className="bg-white p-8 rounded-xl shadow-lg">
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Client-Centered Approach</h3>
+                    <p className="text-gray-600">
+                      We prioritize understanding your unique needs and challenges, working collaboratively to develop solutions that align with your goals and deliver measurable results.
+                    </p>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection delay={0.4} className="bg-white p-8 rounded-xl shadow-lg">
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Commitment to Innovation</h3>
+                    <p className="text-gray-600">
+                      We continuously explore and adopt new technologies and methodologies to ensure our clients benefit from the most advanced and efficient solutions available.
+                    </p>
+                  </div>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-16">
           <div className="container mx-auto px-6">
@@ -176,6 +272,46 @@ const AboutPage = () => {
                 </Link>
               </div>
             </AnimatedSection>
+          </div>
+        </section>
+
+        {/* Our Works Section */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-6">
+            <AnimatedSection className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Explore Our Works</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Discover our portfolio of successful projects and innovative solutions.
+              </p>
+            </AnimatedSection>
+            
+            <div className="max-w-4xl mx-auto">
+              <AnimatedSection delay={0.1}>
+                <Link 
+                  to="/our-works"
+                  className="group block bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+                >
+                  <div className="relative">
+                    <div className="aspect-w-16 aspect-h-9">
+                      <img 
+                        src="/images/portfolio/showcase.jpg" 
+                        alt="Project Showcase"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                      <div className="text-white">
+                        <h3 className="text-2xl font-bold mb-2">View Our Portfolio</h3>
+                        <p className="text-gray-200 mb-4">Explore our collection of successful projects across various industries.</p>
+                        <span className="inline-flex items-center text-blue-400 group-hover:text-blue-300 transition-colors">
+                          Learn More <ChevronRight className="ml-1 w-5 h-5" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </AnimatedSection>
+            </div>
           </div>
         </section>
 

@@ -55,37 +55,48 @@ const ErrorFallback: React.FC<{ error: Error; resetErrorBoundary: () => void }> 
 );
 
 const HomePage: React.FC = () => {
-  const [isVideoLoaded, setIsVideoLoaded] = React.useState(false);
-  const [isVideoError, setIsVideoError] = React.useState(false);
-
   const services = [
     {
+      id: 'electrical-services',
+      icon: <Zap className="w-12 h-12 text-blue-500" />,
+      title: "Electrical Services",
+      description: "Complete electrical system maintenance and installations.",
+      image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+    },
+    {
       id: 'mechanical-services',
-      icon: <Wrench className="w-10 h-10 text-blue-600" />,
+      icon: <Wrench className="w-12 h-12 text-blue-500" />,
       title: "Mechanical Services",
       description: "Comprehensive HVAC maintenance, elevator maintenance, and mechanical system optimization.",
-      image: "/images/services/mechanical.jpg"
+      image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
     },
     {
       id: 'civil-works',
-      icon: <Building className="w-10 h-10 text-blue-600" />,
+      icon: <Building className="w-12 h-12 text-blue-500" />,
       title: "Civil Works",
       description: "Structural maintenance, repairs, renovations, and infrastructure development.",
-      image: "/images/services/civil.jpg"
+      image: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
     },
     {
-      id: 'electrical-services',
-      icon: <Zap className="w-10 h-10 text-blue-600" />,
-      title: "Electrical Services",
-      description: "Complete electrical system maintenance and installations.",
-      image: "/images/services/electrical.jpg"
+      id: 'architecture-interior-design',
+      icon: <Paintbrush className="w-12 h-12 text-blue-500" />,
+      title: "Architecture & Interior Design",
+      description: "Modern architectural solutions and interior design services.",
+      image: "https://images.unsplash.com/photo-1618220179428-22790b461013?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
     },
     {
       id: 'facility-management',
-      icon: <Building className="w-10 h-10 text-blue-600" />,
+      icon: <Building className="w-12 h-12 text-blue-500" />,
       title: "Facility Management",
       description: "Comprehensive facility management for commercial and industrial properties.",
-      image: "/images/services/facility.jpg"
+      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+    },
+    {
+      id: 'security-services',
+      icon: <ShieldCheck className="w-12 h-12 text-blue-500" />,
+      title: "Security Services",
+      description: "Advanced security systems and monitoring solutions for complete protection.",
+      image: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
     }
   ];
 
@@ -247,47 +258,38 @@ const HomePage: React.FC = () => {
           </section>
 
           {/* Services Section */}
-          <section className="py-20 bg-gray-50">
+          <section className="py-20 bg-gray-100">
             <div className="container mx-auto px-6">
               <AnimatedSection className="text-center mb-16">
                 <p className="text-blue-600 font-semibold mb-2">OUR SERVICES</p>
                 <h2 className="text-4xl font-bold text-gray-800 mb-4">Comprehensive Engineering Solutions</h2>
                 <p className="text-gray-600 max-w-2xl mx-auto">
-                  We offer end-to-end engineering services designed to optimize your operations and drive innovation.
+                  We offer a wide range of engineering and facility management services to meet your needs.
                 </p>
               </AnimatedSection>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {services.map((service, index) => (
                   <AnimatedSection key={service.id} delay={index * 0.1}>
-                    <Link to={`/services/${service.id}`} className="group">
-                      <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300">
-                        <div className="relative h-72">
-                          <img 
-                            src={service.image} 
-                            alt={service.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
-                          <div className="absolute bottom-0 left-0 p-8">
-                            <div className="bg-blue-600/20 backdrop-blur-sm p-3 rounded-full inline-block mb-4">
+                    <Link to={`/services/${service.id}`} className="block">
+                      <div className="group relative overflow-hidden rounded-2xl h-[280px]">
+                        <img 
+                          src={service.image} 
+                          alt={service.title} 
+                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent">
+                          <div className="absolute bottom-0 p-6">
+                            <div className="bg-blue-500/30 w-14 h-14 rounded-full flex items-center justify-center mb-4">
                               {service.icon}
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-2">{service.title}</h3>
-                            <p className="text-gray-200">{service.description}</p>
+                            <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                            <p className="text-gray-200 text-sm">{service.description}</p>
                           </div>
                         </div>
                       </div>
                     </Link>
                   </AnimatedSection>
                 ))}
-              </div>
-              <div className="text-center mt-12">
-                <Link 
-                  to="/services" 
-                  className="inline-flex items-center bg-blue-600 text-white font-semibold px-8 py-3 rounded-full hover:bg-blue-700 transition duration-300"
-                >
-                  View All Services <ChevronRight className="ml-2 w-5 h-5" />
-                </Link>
               </div>
             </div>
           </section>
@@ -349,19 +351,108 @@ const HomePage: React.FC = () => {
               <AnimatedSection>
                 <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-3xl p-12 text-white text-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10"></div>
-                  <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Engineering Operations?</h2>
-                  <p className="text-xl mb-8 max-w-3xl mx-auto text-gray-200">
+                  <h2 className="text-4xl font-bold mb-4 relative z-10">Ready to Transform Your Engineering Operations?</h2>
+                  <p className="text-xl mb-8 max-w-3xl mx-auto text-gray-200 relative z-10">
                     Let's discuss how our engineering solutions can optimize your processes and drive innovation.
                   </p>
                   <Link 
                     to="/contact" 
-                    className="bg-white text-blue-900 hover:bg-blue-50 font-semibold py-4 px-10 rounded-full transition duration-300 inline-flex items-center group"
+                    className="inline-flex items-center bg-white text-blue-900 hover:bg-blue-50 font-semibold py-4 px-10 rounded-full transition duration-300 relative z-10 group"
                   >
                     Schedule a Consultation
                     <ArrowRight className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </AnimatedSection>
+            </div>
+          </section>
+
+          {/* Our Works Section */}
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-6">
+              <AnimatedSection className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Works</h2>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  Explore our portfolio of successful projects and innovative solutions.
+                </p>
+              </AnimatedSection>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <AnimatedSection delay={0.1}>
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <div className="aspect-w-16 aspect-h-9">
+                      <img 
+                        src="/images/portfolio/automation.jpg" 
+                        alt="Industrial Automation"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">Industrial Automation</h3>
+                      <p className="text-gray-600 mb-4">Advanced automation solutions for manufacturing facilities.</p>
+                      <Link 
+                        to="/our-works" 
+                        className="inline-flex items-center text-blue-600 hover:text-blue-700"
+                      >
+                        View Project <ChevronRight className="ml-1 w-5 h-5" />
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+
+                <AnimatedSection delay={0.2}>
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <div className="aspect-w-16 aspect-h-9">
+                      <img 
+                        src="/images/portfolio/electrical.jpg" 
+                        alt="Electrical Infrastructure"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">Electrical Infrastructure</h3>
+                      <p className="text-gray-600 mb-4">Power distribution systems for commercial complexes.</p>
+                      <Link 
+                        to="/our-works" 
+                        className="inline-flex items-center text-blue-600 hover:text-blue-700"
+                      >
+                        View Project <ChevronRight className="ml-1 w-5 h-5" />
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+
+                <AnimatedSection delay={0.3}>
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <div className="aspect-w-16 aspect-h-9">
+                      <img 
+                        src="/images/portfolio/mechanical.jpg" 
+                        alt="HVAC Systems"
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">HVAC Systems</h3>
+                      <p className="text-gray-600 mb-4">Modern HVAC installations for office buildings.</p>
+                      <Link 
+                        to="/our-works" 
+                        className="inline-flex items-center text-blue-600 hover:text-blue-700"
+                      >
+                        View Project <ChevronRight className="ml-1 w-5 h-5" />
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              </div>
+
+              <div className="text-center mt-12">
+                <Link 
+                  to="/our-works"
+                  className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full transition duration-300"
+                >
+                  View All Projects <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </div>
             </div>
           </section>
 

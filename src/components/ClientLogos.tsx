@@ -7,44 +7,36 @@ import 'swiper/css';
 const ClientLogos = () => {
   const clients = [
     {
-      name: 'Microsoft',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg'
+      name: 'Siemens',
+      logo: 'https://companieslogo.com/img/orig/SIEGY-ea68686c.png?t=1648063903'
     },
     {
-      name: 'Infosys',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg'
+      name: 'Schneider Electric',
+      logo: 'https://companieslogo.com/img/orig/SU.PA-f21ccc48.png?t=1648063884'
     },
     {
-      name: 'TCS',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Tata_Consultancy_Services_Logo.svg'
+      name: 'ABB',
+      logo: 'https://companieslogo.com/img/orig/ABBN.SW-a4b1e6bc.png?t=1648063763'
     },
     {
-      name: 'Wipro',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Wipro_Primary_Logo_Color_RGB.svg'
+      name: 'Honeywell',
+      logo: 'https://companieslogo.com/img/orig/HON-5331f36d.png?t=1648063714'
     },
     {
-      name: 'Tech Mahindra',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Tech_Mahindra_New_Logo.svg'
+      name: 'Johnson Controls',
+      logo: 'https://companieslogo.com/img/orig/JCI-6d2c9459.png?t=1648063729'
     },
     {
-      name: 'Cognizant',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Cognizant_logo.svg'
+      name: 'Toshiba',
+      logo: 'https://companieslogo.com/img/orig/TOSYY-f60d19b7.png?t=1648063903'
     },
     {
-      name: 'Accenture',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/c/cd/Accenture.svg'
+      name: 'Mitsubishi Electric',
+      logo: 'https://companieslogo.com/img/orig/8058.T-c7d9cc0e.png?t=1648063775'
     },
     {
-      name: 'Capgemini',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/0/03/Capgemini_logo.svg'
-    },
-    {
-      name: 'HCL',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/HCL_Technologies_logo.svg'
-    },
-    {
-      name: 'Amazon',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg'
+      name: 'Carrier',
+      logo: 'https://companieslogo.com/img/orig/CARR-5fb21dd2.png?t=1648063846'
     }
   ];
 
@@ -58,23 +50,22 @@ const ClientLogos = () => {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Clients</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Partners</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Trusted by leading organizations in Hyderabad and across India
+            Working with leading industrial and engineering companies
           </p>
         </motion.div>
         
         <Swiper
           modules={[Autoplay]}
-          spaceBetween={30}
+          spaceBetween={50}
           slidesPerView={2}
           loop={true}
+          speed={3000}
           autoplay={{
             delay: 0,
             disableOnInteraction: false,
-            speed: 5000
           }}
-          speed={5000}
           breakpoints={{
             640: {
               slidesPerView: 3,

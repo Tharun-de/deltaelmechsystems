@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, Mail, MapPin, Send, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Facebook, Twitter, Instagram, Linkedin, X, MessageCircle } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AnimatedSection from '../components/AnimatedSection';
@@ -47,13 +47,27 @@ const ContactPage = () => {
     }
   };
 
-  const locations = [
-    { city: 'Hyderabad', type: 'HQ', coords: { x: 48, y: 58 } },
-    { city: 'Bangalore', type: 'Branch', coords: { x: 45, y: 68 } },
-    { city: 'Mumbai', type: 'Branch', coords: { x: 35, y: 55 } },
-    { city: 'Delhi', type: 'Branch', coords: { x: 45, y: 35 } },
-    { city: 'Vizag', type: 'Branch', coords: { x: 55, y: 55 } },
-    { city: 'Goa', type: 'Branch', coords: { x: 35, y: 65 } }
+  const faqs = [
+    {
+      question: 'What industries do you serve?',
+      answer: 'We serve a wide range of industries including manufacturing, automotive, pharmaceuticals, food and beverage, energy, and more. Our solutions are tailored to meet the specific needs of each industry.'
+    },
+    {
+      question: 'How long does a typical project take?',
+      answer: 'Project timelines vary depending on the scope and complexity. Small automation projects may take 2-4 weeks, while larger integrated systems can take several months. We provide detailed timelines during the consultation phase.'
+    },
+    {
+      question: 'Do you provide maintenance services?',
+      answer: 'Yes, we offer comprehensive maintenance services including preventive maintenance programs, emergency support, and system upgrades. Our maintenance contracts can be customized to meet your specific needs.'
+    },
+    {
+      question: 'Can you integrate with existing systems?',
+      answer: 'Absolutely. We specialize in integrating new technologies with existing systems to maximize your investment. Our team has experience working with a wide range of equipment and control systems.'
+    },
+    {
+      question: 'What is your approach to project management?',
+      answer: 'We follow a structured project management methodology that includes detailed planning, regular progress updates, quality control checkpoints, and thorough documentation. Each project is assigned a dedicated project manager who serves as your main point of contact.'
+    }
   ];
 
   return (
@@ -65,204 +79,71 @@ const ContactPage = () => {
         <section className="bg-blue-900 text-white pt-32 pb-20">
           <div className="container mx-auto px-6">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Get in Touch</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Information</h1>
               <p className="text-xl text-blue-100">
-                Have questions or need a consultation? Reach out to our team and we'll get back to you within 24 hours.
+                Reach out to us through any of the following channels or visit one of our offices.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Contact Information */}
-        <section className="py-20">
+        {/* Contact Cards */}
+        <section className="py-20 -mt-10">
           <div className="container mx-auto px-6">
-            <AnimatedSection className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Contact Information</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Reach out to us through any of the following channels or visit our office.
-              </p>
-            </AnimatedSection>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              <AnimatedSection delay={0.1} className="bg-white p-8 rounded-lg shadow-lg text-center">
-                <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-4">
-                  <Phone className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Phone</h3>
-                <p className="text-gray-600">
-                  <a href="tel:+919346390000" className="hover:text-blue-600 transition duration-300">
-                    +91 934639000
-                  </a>
-                </p>
-              </AnimatedSection>
-              
-              <AnimatedSection delay={0.2} className="bg-white p-8 rounded-lg shadow-lg text-center">
-                <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-4">
-                  <Mail className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Email</h3>
-                <p className="text-gray-600">
-                  <a href="mailto:info@deltaelmech.com" className="hover:text-blue-600 transition duration-300">
-                    info@deltaelmech.com
-                  </a>
-                </p>
-              </AnimatedSection>
-              
-              <AnimatedSection delay={0.3} className="bg-white p-8 rounded-lg shadow-lg text-center">
-                <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-4">
-                  <MapPin className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Visit Us</h3>
-                <p className="text-gray-600">
-                  Hyderabad, India
-                </p>
-              </AnimatedSection>
-            </div>
-          </div>
-        </section>
-
-        {/* Our Locations Map */}
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-6">
-            <AnimatedSection className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Locations</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                With offices across India, we're well-positioned to serve your needs
-              </p>
-            </AnimatedSection>
-
-            <AnimatedSection delay={0.1}>
-              <div className="relative w-full max-w-4xl mx-auto">
-                <div className="aspect-[4/5] bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl overflow-hidden shadow-lg p-8">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    {/* Decorative Background Elements */}
-                    <defs>
-                      <pattern id="grid" width="4" height="4" patternUnits="userSpaceOnUse">
-                        <path d="M 4 0 L 0 0 0 4" fill="none" stroke="rgba(59, 130, 246, 0.1)" strokeWidth="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100" height="100" fill="url(#grid)" />
-
-                    {/* India Map Outline - More detailed and modern */}
-                    <path
-                      d="M35,25 C38,22 42,20 45,20 C48,20 52,22 55,25 C58,28 59,32 60,35 C61,38 63,42 65,45 C67,48 65,52 60,55 C58,58 56,62 55,65 C52,68 48,72 45,75 C42,77 38,75 35,70 C32,67 31,63 30,60 C29,57 27,53 25,50 C23,47 25,43 30,40 C32,37 33,33 35,25 Z"
-                      className="fill-blue-200/50 stroke-blue-400"
-                      strokeWidth="0.5"
-                    />
-
-                    {/* Glowing Effect */}
-                    <path
-                      d="M35,25 C38,22 42,20 45,20 C48,20 52,22 55,25 C58,28 59,32 60,35 C61,38 63,42 65,45 C67,48 65,52 60,55 C58,58 56,62 55,65 C52,68 48,72 45,75 C42,77 38,75 35,70 C32,67 31,63 30,60 C29,57 27,53 25,50 C23,47 25,43 30,40 C32,37 33,33 35,25 Z"
-                      className="fill-none stroke-blue-300"
-                      strokeWidth="1"
-                      filter="url(#glow)"
-                    />
-                    
-                    {/* Connection Lines with Animation */}
-                    {locations.map((loc, i) => 
-                      locations.slice(i + 1).map((nextLoc, j) => (
-                        <g key={`${i}-${j}`}>
-                          <line
-                            x1={loc.coords.x}
-                            y1={loc.coords.y}
-                            x2={nextLoc.coords.x}
-                            y2={nextLoc.coords.y}
-                            className="stroke-blue-400/30"
-                            strokeWidth="0.3"
-                            strokeDasharray="1,1"
-                          >
-                            <animate
-                              attributeName="stroke-dashoffset"
-                              from="0"
-                              to="2"
-                              dur="1s"
-                              repeatCount="indefinite"
-                            />
-                          </line>
-                        </g>
-                      ))
-                    )}
-                    
-                    {/* Location Markers */}
-                    {locations.map((location, index) => (
-                      <g key={location.city}>
-                        {/* Pulse Animation */}
-                        <circle
-                          cx={location.coords.x}
-                          cy={location.coords.y}
-                          r={location.type === 'HQ' ? "3" : "2"}
-                          className={`${location.type === 'HQ' ? 'fill-blue-400/20' : 'fill-blue-300/20'}`}
-                        >
-                          <animate
-                            attributeName="r"
-                            values={location.type === 'HQ' ? "2;3;2" : "1;2;1"}
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                          <animate
-                            attributeName="opacity"
-                            values="0.3;0.1;0.3"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                        
-                        {/* Main Marker */}
-                        <circle
-                          cx={location.coords.x}
-                          cy={location.coords.y}
-                          r={location.type === 'HQ' ? "1.8" : "1.3"}
-                          className={`${location.type === 'HQ' ? 'fill-blue-600' : 'fill-blue-400'} stroke-white`}
-                          strokeWidth="0.3"
-                        />
-                        
-                        {/* City Label */}
-                        <g transform={`translate(${location.coords.x}, ${location.coords.y + 3})`}>
-                          <text
-                            className="fill-gray-700 text-[2.5px] font-bold"
-                            textAnchor="middle"
-                          >
-                            {location.city}
-                          </text>
-                          {location.type === 'HQ' && (
-                            <text
-                              className="fill-blue-600 text-[2px]"
-                              textAnchor="middle"
-                              y="2.5"
-                            >
-                              (HQ)
-                            </text>
-                          )}
-                        </g>
-                      </g>
-                    ))}
-                  </svg>
-                </div>
-                
-                {/* Legend */}
-                <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Our Presence</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {locations.map(location => (
-                      <div key={location.city} className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full ${location.type === 'HQ' ? 'bg-blue-600' : 'bg-blue-400'} shadow-sm`} />
-                        <div>
-                          <span className="text-gray-800 font-medium">{location.city}</span>
-                          {location.type === 'HQ' && (
-                            <span className="text-blue-600 text-sm ml-1">(HQ)</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              <AnimatedSection delay={0.1}>
+                <div className="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                  <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-6">
+                    <Phone className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Phone</h3>
+                  <div className="space-y-2">
+                    <a href="tel:+919346397285" className="block hover:text-blue-600 transition duration-300">
+                      +91 9346397285
+                    </a>
+                    <a href="tel:+919059990772" className="block hover:text-blue-600 transition duration-300">
+                      +91 9059990772
+                    </a>
                   </div>
                 </div>
-              </div>
-            </AnimatedSection>
+              </AnimatedSection>
+
+              <AnimatedSection delay={0.2}>
+                <div className="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                  <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-6">
+                    <Mail className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Email</h3>
+                  <div className="space-y-2">
+                    <a href="mailto:info@deltaelmech.com" className="block hover:text-blue-600 transition duration-300">
+                      info@deltaelmech.com
+                    </a>
+                    <a href="mailto:support@deltaelmech.com" className="block hover:text-blue-600 transition duration-300">
+                      support@deltaelmech.com
+                    </a>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <AnimatedSection delay={0.3}>
+                <div className="bg-white p-8 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                  <div className="bg-blue-100 p-4 rounded-full inline-flex items-center justify-center mb-6">
+                    <MapPin className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Visit Us</h3>
+                  <div className="space-y-2">
+                    <p className="text-gray-600">Plot No. 921, Ayyappa Society</p>
+                    <p className="text-gray-600">Madhapur, Hyderabad</p>
+                    <p className="text-gray-600">Telangana 500081</p>
+                  </div>
+                </div>
+              </AnimatedSection>
+            </div>
           </div>
         </section>
 
-        {/* Contact Form */}
-        <section className="py-20 bg-gray-50">
+        {/* Send Us a Message Section */}
+        <section className="py-20 bg-white">
           <div className="container mx-auto px-6">
             <AnimatedSection className="text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">Send Us a Message</h2>
@@ -279,7 +160,7 @@ const ContactPage = () => {
                     <p>Your message has been sent successfully. We'll get back to you shortly.</p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg">
+                  <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg">
                     {submitError && (
                       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
                         {submitError}
@@ -297,6 +178,7 @@ const ContactPage = () => {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="John"
                         />
                       </div>
                       <div>
@@ -309,6 +191,7 @@ const ContactPage = () => {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Doe"
                         />
                       </div>
                     </div>
@@ -324,6 +207,7 @@ const ContactPage = () => {
                           onChange={handleInputChange}
                           required
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="john.doe@example.com"
                         />
                       </div>
                       <div>
@@ -335,6 +219,7 @@ const ContactPage = () => {
                           value={formData.phone}
                           onChange={handleInputChange}
                           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="+1 (555) 123-4567"
                         />
                       </div>
                     </div>
@@ -348,6 +233,7 @@ const ContactPage = () => {
                         value={formData.company}
                         onChange={handleInputChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Your Company Name"
                       />
                     </div>
                     
@@ -361,6 +247,7 @@ const ContactPage = () => {
                         onChange={handleInputChange}
                         required
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="How can we help you?"
                       />
                     </div>
                     
@@ -371,28 +258,133 @@ const ContactPage = () => {
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                        rows={6} 
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      ></textarea>
+                        rows={6}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        placeholder="Please describe how we can assist you..."
+                      />
                     </div>
                     
-                    <button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                      className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md transition duration-300 flex items-center justify-center ${
-                        isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                      }`}
-                    >
-                      {isSubmitting ? 'Sending...' : (
-                        <>
-                          Send Message <Send className="ml-2 w-5 h-5" />
-                        </>
-                      )}
-                    </button>
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
+                      >
+                        {isSubmitting ? (
+                          <span>Sending...</span>
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5 mr-2" />
+                            Send Message
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </form>
                 )}
               </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
+        {/* Our Office Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <AnimatedSection className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Office</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Visit us at our office
+              </p>
+            </AnimatedSection>
+            
+            <div className="max-w-3xl mx-auto">
+              <AnimatedSection delay={0.1}>
+                <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">Hyderabad Office</h3>
+                  <p className="text-gray-600 mb-4">
+                    Plot No. 921, Ayyappa Society<br />
+                    Madhapur, Hyderabad<br />
+                    Telangana 500081<br />
+                    India
+                  </p>
+                  <div className="aspect-w-16 aspect-h-9">
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.4397026251487!2d78.38387827486443!3d17.439902583747695!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93e37b46e83d%3A0x3c5a2144a6d76599!2sAyyappa%20Society%2C%20Madhapur%2C%20Hyderabad%2C%20Telangana%20500081!5e0!3m2!1sen!2sin!4v1709561245678!5m2!1sen!2sin"
+                      width="100%"
+                      height="300"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+              </AnimatedSection>
+            </div>
+          </div>
+        </section>
+
+        {/* Connect With Us Section */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-6">
+            <AnimatedSection className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Connect With Us</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Follow us on social media to stay updated with our latest news and projects.
+              </p>
+            </AnimatedSection>
+            
+            <div className="flex justify-center space-x-8">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="transform hover:scale-110 transition-transform duration-300">
+                <div className="bg-blue-100 p-4 rounded-full">
+                  <Facebook className="w-8 h-8 text-blue-600" />
+                </div>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="transform hover:scale-110 transition-transform duration-300">
+                <div className="bg-pink-100 p-4 rounded-full">
+                  <Instagram className="w-8 h-8 text-pink-600" />
+                </div>
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="transform hover:scale-110 transition-transform duration-300">
+                <div className="bg-blue-100 p-4 rounded-full">
+                  <X className="w-8 h-8 text-blue-600" />
+                </div>
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="transform hover:scale-110 transition-transform duration-300">
+                <div className="bg-blue-100 p-4 rounded-full">
+                  <Linkedin className="w-8 h-8 text-blue-600" />
+                </div>
+              </a>
+              <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" className="transform hover:scale-110 transition-transform duration-300">
+                <div className="bg-green-100 p-4 rounded-full">
+                  <MessageCircle className="w-8 h-8 text-green-600" />
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <AnimatedSection className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Find answers to common questions about our services and processes.
+              </p>
+            </AnimatedSection>
+            
+            <div className="max-w-4xl mx-auto">
+              {faqs.map((faq, index) => (
+                <AnimatedSection key={index} delay={index * 0.1}>
+                  <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3">{faq.question}</h3>
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </div>
+                </AnimatedSection>
+              ))}
             </div>
           </div>
         </section>

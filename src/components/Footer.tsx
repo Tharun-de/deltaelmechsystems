@@ -71,13 +71,17 @@ const Footer = () => {
                 <MapPin className="w-5 h-5 text-blue-400 mr-3 mt-1" />
                 <span className="text-gray-400">Plot-921, Ayyappa Society<br />Madhapur, Hyderabad</span>
               </li>
-              <li className="flex items-center">
-                <Phone className="w-5 h-5 text-blue-400 mr-3" />
-                <span className="text-gray-400">+91 9346390000</span>
+              <li className="flex items-center space-x-2">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-400">+91 9346397285</span>
               </li>
-              <li className="flex items-center">
-                <Mail className="w-5 h-5 text-blue-400 mr-3" />
-                <span className="text-gray-400">info@deltaelmech.com</span>
+              <li className="flex items-center space-x-2">
+                <Phone className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-400">+91 9059990772</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-400">deltaelmech2014@gmail.com</span>
               </li>
             </ul>
           </div>
