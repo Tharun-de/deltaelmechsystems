@@ -9,23 +9,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
     - uses: actions/checkout@v3
     
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18.x'
+        node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        
+    
     - name: Install Dependencies
       run: |
         cd frontend
         npm ci
         cd ../backend
         npm ci
-        
+    
     - name: Run Frontend Tests
       run: |
         cd frontend
@@ -49,11 +52,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Deploy to Render Staging
+    - name: Deploy Frontend to Render (Staging)
       env:
         RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
       run: |
-        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_STAGING }}/deploys \
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_STAGING_ID }}/deploys \
+          -H "Authorization: Bearer $RENDER_TOKEN"
+    
+    - name: Deploy Backend to Render (Staging)
+      env:
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+      run: |
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_STAGING_ID }}/deploys \
           -H "Authorization: Bearer $RENDER_TOKEN"
 
   deploy-production:
@@ -62,9 +72,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Deploy to Render Production
+    - name: Deploy Frontend to Render (Production)
       env:
         RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
       run: |
-        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_PROD }}/deploys \
-          -H "Authorization: Bearer $RENDER_TOKEN" 
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_PROD_ID }}/deploys \
+          -H "Authorization: Bearer $RENDER_TOKEN"
+    
+    - name: Deploy Backend to Render (Production)
+      env:
+        RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+      run: |
+        curl -X POST https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_PROD_ID }}/deploys \
+          -H "Authorization: Bearer $RENDER_TOKEN"

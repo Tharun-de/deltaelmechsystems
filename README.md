@@ -10,6 +10,13 @@ Delta Elmech Systems is a professional engineering services platform that connec
 - npm 9.x or higher
 - Git
 
+### Required Services
+
+- [Render](https://render.com) for frontend and backend hosting
+- [Supabase](https://supabase.com) for database
+- [Sentry](https://sentry.io) for error tracking
+- [New Relic](https://newrelic.com) for performance monitoring
+
 ### Installation
 
 1. Clone the repository
@@ -32,8 +39,19 @@ npm install
 
 4. Set up environment variables
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+# Frontend (.env)
+VITE_API_URL=your_backend_url
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SENTRY_DSN=your_sentry_dsn
+
+# Backend (.env)
+PORT=5002
+NODE_ENV=production
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEW_RELIC_LICENSE_KEY=your_newrelic_license_key
+CORS_ORIGIN=your_frontend_url
 ```
 
 5. Start development servers
@@ -90,8 +108,81 @@ git push origin feature/your-feature-name
 
 ## 🚀 Deployment
 
-- Staging: Automatically deployed from `staging` branch
-- Production: Automatically deployed from `main` branch
+### Database Setup
+
+1. Run database migrations:
+```bash
+npm run db:migrate
+```
+
+2. Seed initial data (if needed):
+```bash
+npm run db:seed
+```
+
+### Deployment Steps
+
+1. Create services on Render.com:
+   - Create a Static Site service for the frontend
+   - Create a Web Service for the backend
+
+2. Configure environment variables in Render dashboard:
+   ```env
+   # Frontend
+   VITE_API_URL=your_backend_url
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SENTRY_DSN=your_sentry_dsn
+
+   # Backend
+   PORT=5002
+   NODE_ENV=production
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   NEW_RELIC_LICENSE_KEY=your_newrelic_license_key
+   CORS_ORIGIN=your_frontend_url
+   ```
+
+3. Set up build commands:
+   - Frontend: `npm run build`
+   - Backend: `npm install && npm run build`
+
+4. Set up start commands:
+   - Frontend: Serve the `dist` directory
+   - Backend: `npm start`
+
+### Post-Deployment
+
+1. Configure custom domains in Render dashboard
+2. Set up SSL certificates (automatically handled by Render)
+3. Test the deployed application
+4. Monitor the application using Sentry and New Relic
+
+### Monitoring & Maintenance
+
+- Monitor application performance in New Relic
+- Track errors in Sentry
+- Check server logs in Render dashboard
+- Monitor database performance in Supabase
+
+### Troubleshooting
+
+Common issues and solutions:
+
+1. **Blank Page After Deployment**
+   - Check if environment variables are properly set
+   - Verify API endpoints are accessible
+   - Check browser console for errors
+
+2. **Database Connection Issues**
+   - Verify Supabase connection strings
+   - Check if IP is whitelisted
+   - Verify RLS policies
+
+3. **API Errors**
+   - Check CORS configuration
+   - Verify API routes
+   - Check server logs
 
 ## 📝 Contributing
 
@@ -103,4 +194,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤝 Support
 
-For support, email support@deltaelmechsystems.com or join our Slack channel. 
+For support:
+- Technical Support: support@deltaelmech.com
+- Emergency Contact: emergency@deltaelmech.com
+- Slack Channel: [Join Here]
