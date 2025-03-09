@@ -17,23 +17,14 @@ services:
   - type: web
     name: deltaelmechsystems-frontend
     env: static
-    rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    plan: free
+    pullRequestPreviewsEnabled: true
     envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
       - key: VITE_API_URL
         value: https://deltaelmechsystems-backend.onrender.com
-      - key: VITE_SUPABASE_URL
-        fromService:
-          name: deltaelmechsystems-backend
-          type: web
-          envVarKey: SUPABASE_URL
-      - key: VITE_SUPABASE_ANON_KEY
-        fromService:
-          name: deltaelmechsystems-backend
-          type: web
-          envVarKey: SUPABASE_ANON_KEY
     routes:
       - type: rewrite
         source: /*

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { beforeEach, vi, expect } from 'vitest';
 import { mockSupabase, resetMocks } from './mocks/supabase';
 
 // Reset all mocks before each test
