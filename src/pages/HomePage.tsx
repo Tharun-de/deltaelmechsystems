@@ -198,10 +198,10 @@ const HomePage: React.FC = () => {
                     transition={{ duration: 0.8 }}
                   >
                     <h1 className="text-6xl font-bold mb-6 leading-tight">
-                      Engineering Excellence for the <span className="text-blue-400">Future</span>
+                      Engineering Excellence for the <span className="text-blue-400">Future</span> - Updated
                     </h1>
                     <p className="text-xl mb-8 text-gray-200">
-                      Delta Elmech Systems delivers innovative engineering solutions that transform industries and drive sustainable growth.
+                      Delta Elmech Systems delivers innovative engineering solutions that transform industries and drive sustainable growth. Experience the difference with our cutting-edge technology and expert team.
                     </p>
                     <div className="flex flex-wrap gap-4">
                       <Link 
