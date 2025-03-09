@@ -1,396 +1,300 @@
-import React, { useState } from 'react';
-import { useAdminDashboard } from '../../hooks/useAdminDashboard';
-import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
-import { LoadingSpinner } from '../../components/ui/loading-spinner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
-import { Label } from '../../components/ui/label';
-import { Input } from '../../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Textarea } from '../../components/ui/textarea';
-import { useToast } from '../../components/ui/use-toast';
-import { formatCurrency } from '../../lib/utils';
-import type { Project } from '../../lib/types';
+import React, { useState, useEffect } from 'react';
+import { Briefcase, Search, Filter, MoreVertical, Edit, Trash, Plus, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import ProjectModal from '@/components/modals/ProjectModal';
+import ConfirmationDialog from '@/components/modals/ConfirmationDialog';
 
-interface ProjectFormData {
-  title: string;
+interface Project {
+  id: number;
+  name: string;
+  client: string;
+  status: string;
+  progress: number;
+  dueDate: string;
+  team: string[];
+  priority: string;
   description: string;
-  client_id: string;
-  developer_ids: string[];
-  budget: number;
-  status: 'planning' | 'in-progress' | 'completed' | 'on-hold';
-  start_date: string;
-  end_date: string;
 }
 
 const AdminProjects = () => {
-  const { projects, loading, updateProject, deleteProject } = useAdminDashboard();
-  const { toast } = useToast();
-  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
-  const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
+  // States
+  const [projects, setProjects] = useState<Project[]>([
+    {
+      id: 1,
+      name: 'Industrial Automation System',
+      client: 'ABC Manufacturing',
+      status: 'In Progress',
+      progress: 65,
+      dueDate: '2024-04-15',
+      team: ['John D.', 'Sarah K.', 'Mike R.'],
+      priority: 'High',
+      description: 'Implementation of automated manufacturing processes'
+    },
+    {
+      id: 2,
+      name: 'Electrical Infrastructure Upgrade',
+      client: 'XYZ Industries',
+      status: 'Planning',
+      progress: 25,
+      dueDate: '2024-05-01',
+      team: ['Robert M.', 'Emily S.'],
+      priority: 'Medium',
+      description: 'Upgrading electrical systems for improved efficiency'
+    },
+    {
+      id: 3,
+      name: 'HVAC System Maintenance',
+      client: 'Tech Solutions Inc',
+      status: 'Completed',
+      progress: 100,
+      dueDate: '2024-03-30',
+      team: ['David L.', 'Anna P.', 'Chris B.'],
+      priority: 'Normal',
+      description: 'Regular maintenance and optimization of HVAC systems'
+    }
+  ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState<ProjectFormData>({
-    title: '',
-    description: '',
-    client_id: '',
-    developer_ids: [],
-    budget: 0,
-    status: 'planning',
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: new Date().toISOString().split('T')[0]
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+
+  // Filter projects based on search query and filters
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = 
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
+    const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
+
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <LoadingSpinner size={48} />
-      </div>
-    );
-  }
-
-  const handleAddProject = async () => {
-    try {
-      // In a real app, you would call an API to create the project
-      // For now, we'll just show a success message
-      toast({
-        title: "Success",
-        description: "Project added successfully",
-      });
-      setIsAddProjectOpen(false);
-      setFormData({
-        title: '',
-        description: '',
-        client_id: '',
-        developer_ids: [],
-        budget: 0,
-        status: 'planning',
-        start_date: new Date().toISOString().split('T')[0],
-        end_date: new Date().toISOString().split('T')[0]
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add project",
-        variant: "destructive"
-      });
-    }
+  const handleAddProject = (projectData: Omit<Project, 'id' | 'progress'>) => {
+    const newProject: Project = {
+      id: projects.length + 1,
+      progress: 0,
+      ...projectData
+    };
+    setProjects([...projects, newProject]);
+    setIsModalOpen(false);
   };
 
-  const handleEditProject = async () => {
+  const handleEditProject = (projectData: Partial<Project>) => {
     if (!selectedProject) return;
     
-    try {
-      await updateProject.mutateAsync({
-        projectId: selectedProject.id,
-        updates: formData
-      });
-      
-      toast({
-        title: "Success",
-        description: "Project updated successfully",
-      });
-      setIsEditProjectOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update project",
-        variant: "destructive"
-      });
+    setProjects(projects.map(project => 
+      project.id === selectedProject.id 
+        ? { ...project, ...projectData }
+        : project
+    ));
+    setIsModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  const handleDeleteProject = (id: number) => {
+    setProjects(projects.filter(project => project.id !== id));
+    setShowDeleteConfirm(false);
+    setProjectToDelete(null);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'In Progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'Planning':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Completed':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleDeleteProject = async (projectId: string) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
-    
-    try {
-      await deleteProject.mutateAsync(projectId);
-      toast({
-        title: "Success",
-        description: "Project deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete project",
-        variant: "destructive"
-      });
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return 'bg-red-100 text-red-800';
+      case 'Medium':
+        return 'bg-orange-100 text-orange-800';
+      case 'Normal':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Projects</h2>
-        <Button onClick={() => setIsAddProjectOpen(true)}>Create Project</Button>
+    <div className="p-8">
+      <div className="mb-8 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Projects</h1>
+        <button 
+          onClick={() => {
+            setSelectedProject(null);
+            setIsModalOpen(true);
+          }}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          New Project
+        </button>
       </div>
 
-      <div className="grid gap-4">
-        {projects?.map((project) => (
-          <Card key={project.id} className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="font-medium">{project.title}</h3>
-                <p className="text-sm text-gray-500">{project.description}</p>
-                <div className="mt-2 flex gap-4">
-                  <p className="text-sm text-gray-500">
-                    Budget: {formatCurrency(project.budget)}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Client ID: {project.client_id}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Developers: {project.developer_ids.length}
-                  </p>
+      {/* Filters and Search */}
+      <div className="mb-6 flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search projects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Status</option>
+            <option value="Planning">Planning</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Priority</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Normal">Normal</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project) => (
+          <div key={project.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <h3 className="ml-3 font-semibold text-gray-800">{project.name}</h3>
                 </div>
-                <div className="mt-2 flex gap-4">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    project.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : project.status === 'in-progress'
-                      ? 'bg-blue-100 text-blue-800'
-                      : project.status === 'on-hold'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {project.status}
-                  </span>
-                  <p className="text-sm text-gray-500">
-                    Start: {new Date(project.start_date).toLocaleDateString()}
-                  </p>
-                  {project.end_date && (
-                    <p className="text-sm text-gray-500">
-                      End: {new Date(project.end_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
+                <button 
                   onClick={() => {
                     setSelectedProject(project);
-                    setFormData({
-                      title: project.title,
-                      description: project.description,
-                      client_id: project.client_id,
-                      developer_ids: project.developer_ids,
-                      budget: project.budget,
-                      status: project.status,
-                      start_date: project.start_date,
-                      end_date: project.end_date || new Date().toISOString().split('T')[0]
-                    });
-                    setIsEditProjectOpen(true);
+                    setIsModalOpen(true);
                   }}
+                  className="p-1 hover:bg-gray-100 rounded"
                 >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteProject(project.id)}
+                  <Edit className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Client</p>
+                  <p className="font-medium text-gray-800">{project.client}</p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(project.status)}`}>
+                    {project.status}
+                  </span>
+                  <span className={`px-2 py-1 text-xs rounded-full ${getPriorityColor(project.priority)}`}>
+                    {project.priority}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-1">
+                    <span>Progress</span>
+                    <span>{project.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full" 
+                      style={{ width: `${project.progress}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center text-sm text-gray-500">
+                  <Clock className="w-4 h-4 mr-1" />
+                  Due: {project.dueDate}
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Team</p>
+                  <div className="flex -space-x-2">
+                    {project.team.map((member, index) => (
+                      <div 
+                        key={index}
+                        className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center"
+                        title={member}
+                      >
+                        <span className="text-xs font-medium">{member.charAt(0)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end space-x-2">
+                <button 
+                  onClick={() => {
+                    setProjectToDelete(project);
+                    setShowDeleteConfirm(true);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
                 >
-                  Delete
-                </Button>
+                  <Trash className="w-4 h-4 text-red-500" />
+                </button>
               </div>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
-      {/* Add Project Dialog */}
-      <Dialog open={isAddProjectOpen} onOpenChange={setIsAddProjectOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Project Title</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, title: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="client">Client ID</Label>
-                <Input
-                  id="client"
-                  value={formData.client_id}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, client_id: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
-                  setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="budget">Budget</Label>
-                <Input
-                  id="budget"
-                  type="number"
-                  value={formData.budget}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, budget: Number(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: 'planning' | 'in-progress' | 'completed' | 'on-hold') => 
-                    setFormData({ ...formData, status: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="planning">Planning</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="on-hold">On Hold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="start-date">Start Date</Label>
-                <Input
-                  id="start-date"
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, start_date: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="end-date">End Date</Label>
-                <Input
-                  id="end-date"
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, end_date: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddProjectOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddProject}>Create Project</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Project Modal */}
+      <ProjectModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedProject(null);
+        }}
+        onSubmit={selectedProject ? handleEditProject : handleAddProject}
+        initialData={selectedProject}
+        mode={selectedProject ? 'edit' : 'add'}
+      />
 
-      {/* Edit Project Dialog */}
-      <Dialog open={isEditProjectOpen} onOpenChange={setIsEditProjectOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>Edit Project</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Project Title</Label>
-                <Input
-                  id="edit-title"
-                  value={formData.title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, title: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-client">Client ID</Label>
-                <Input
-                  id="edit-client"
-                  value={formData.client_id}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, client_id: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
-                  setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-budget">Budget</Label>
-                <Input
-                  id="edit-budget"
-                  type="number"
-                  value={formData.budget}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, budget: Number(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: 'planning' | 'in-progress' | 'completed' | 'on-hold') => 
-                    setFormData({ ...formData, status: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="planning">Planning</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="on-hold">On Hold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-start-date">Start Date</Label>
-                <Input
-                  id="edit-start-date"
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, start_date: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-end-date">End Date</Label>
-                <Input
-                  id="edit-end-date"
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setFormData({ ...formData, end_date: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditProjectOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditProject}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Project"
+        message={`Are you sure you want to delete "${projectToDelete?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={() => handleDeleteProject(projectToDelete?.id || 0)}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          setProjectToDelete(null);
+        }}
+        type="danger"
+      />
     </div>
   );
 };

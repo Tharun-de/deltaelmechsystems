@@ -1,288 +1,136 @@
 import React, { useState } from 'react';
-import { useAdminDashboard } from '../../hooks/useAdminDashboard';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Card } from '../../components/ui/card';
-import { LoadingSpinner } from '../../components/ui/loading-spinner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../components/ui/dialog';
-import { Label } from '../../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { useToast } from '../../components/ui/use-toast';
-import type { DashboardUser } from '../../lib/types';
-
-interface UserFormData {
-  email: string;
-  name: string;
-  role: 'admin' | 'manager' | 'client';
-  active: boolean;
-}
+import { User, Search, Filter, MoreVertical, Edit, Trash, UserPlus } from 'lucide-react';
 
 const AdminUsers = () => {
-  const { users, loading, updateUser, deleteUser } = useAdminDashboard();
-  const { toast } = useToast();
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<DashboardUser | null>(null);
-  const [formData, setFormData] = useState<UserFormData>({
-    email: '',
-    name: '',
-    role: 'client',
-    active: true
-  });
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <LoadingSpinner size={48} />
-      </div>
-    );
-  }
-
-  const handleAddUser = async () => {
-    try {
-      // In a real app, you would call an API to create the user
-      // For now, we'll just show a success message
-      toast({
-        title: "Success",
-        description: "User added successfully",
-      });
-      setIsAddUserOpen(false);
-      setFormData({
-        email: '',
-        name: '',
-        role: 'client',
-        active: true
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add user",
-        variant: "destructive"
-      });
+  // Mock user data
+  const [users] = useState([
+    {
+      id: 1,
+      name: 'John Smith',
+      email: 'john.smith@example.com',
+      role: 'Manager',
+      status: 'Active',
+      lastActive: '2 hours ago'
+    },
+    {
+      id: 2,
+      name: 'Sarah Johnson',
+      email: 'sarah.j@example.com',
+      role: 'Site Manager',
+      status: 'Active',
+      lastActive: '5 hours ago'
+    },
+    {
+      id: 3,
+      name: 'Michael Brown',
+      email: 'm.brown@example.com',
+      role: 'Client',
+      status: 'Inactive',
+      lastActive: '2 days ago'
     }
-  };
-
-  const handleEditUser = async () => {
-    if (!selectedUser) return;
-    
-    try {
-      await updateUser.mutateAsync({
-        userId: selectedUser.id,
-        updates: {
-          user_metadata: {
-            ...selectedUser.user_metadata,
-            name: formData.name,
-            role: formData.role,
-            active: formData.active
-          }
-        }
-      });
-      
-      toast({
-        title: "Success",
-        description: "User updated successfully",
-      });
-      setIsEditUserOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update user",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
-    
-    try {
-      await deleteUser.mutateAsync(userId);
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete user",
-        variant: "destructive"
-      });
-    }
-  };
+  ]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Users</h2>
-        <Button onClick={() => setIsAddUserOpen(true)}>Add User</Button>
+    <div className="p-8">
+      <div className="mb-8 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Users</h1>
+        <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <UserPlus className="w-5 h-5 mr-2" />
+          Add User
+        </button>
       </div>
 
-      <div className="grid gap-4">
-        {users?.map((user) => (
-          <Card key={user.id} className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="font-medium">{user.user_metadata?.name}</h3>
-                <p className="text-sm text-gray-500">{user.email}</p>
-                <div className="flex gap-2 items-center">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    user.user_metadata?.role === 'admin' 
-                      ? 'bg-purple-100 text-purple-800'
-                      : user.user_metadata?.role === 'manager'
-                      ? 'bg-blue-100 text-blue-800'
+      {/* Filters and Search */}
+      <div className="mb-6 flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          </div>
+          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <Filter className="w-5 h-5 mr-2 text-gray-500" />
+            Filters
+          </button>
+        </div>
+      </div>
+
+      {/* Users Table */}
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Active
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                      <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-6 h-6 text-gray-500" />
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    user.status === 'Active' 
+                      ? 'bg-green-100 text-green-800' 
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {user.user_metadata?.role}
+                    {user.status}
                   </span>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    user.user_metadata?.active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {user.user_metadata?.active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedUser(user);
-                    setFormData({
-                      email: user.email,
-                      name: user.user_metadata?.name || '',
-                      role: user.user_metadata?.role || 'client',
-                      active: user.user_metadata?.active ?? true
-                    });
-                    setIsEditUserOpen(true);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteUser(user.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {user.lastActive}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div className="flex items-center justify-end space-x-2">
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <Edit className="w-4 h-4 text-gray-500" />
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <Trash className="w-4 h-4 text-red-500" />
+                    </button>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <MoreVertical className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      {/* Add User Dialog */}
-      <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value: 'admin' | 'manager' | 'client') => setFormData({ ...formData, role: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddUser}>Add User</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
-      <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                value={formData.email}
-                disabled
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Name</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-role">Role</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value: 'admin' | 'manager' | 'client') => setFormData({ ...formData, role: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select
-                value={formData.active ? 'active' : 'inactive'}
-                onValueChange={(value: 'active' | 'inactive') => setFormData({ ...formData, active: value === 'active' })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditUserOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditUser}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
